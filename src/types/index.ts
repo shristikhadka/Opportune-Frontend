@@ -6,8 +6,8 @@ export interface User {
   firstName: string;
   lastName: string;
   role: 'USER' | 'HR' | 'ADMIN';
-  createdAt: string;
-  updatedAt: string;
+  createdAt?: string;
+  updatedAt?: string;
 }
 
 // Job related types

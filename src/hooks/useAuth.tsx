@@ -1,11 +1,11 @@
-import { useState, useEffect, createContext, useContext } from 'react';
-import { User, AuthResponse } from '../types';
+import { createContext, useContext, useEffect, useState } from 'react';
 import { authAPI } from '../services/api';
+import { User } from '../types';
 
 interface AuthContextType {
   user: User | null;
   loading: boolean;
-  login: (username: string, password: string) => Promise<void>;
+  login: (token: string, user: User) => void;
   register: (userData: any) => Promise<void>;
   logout: () => void;
   checkAuth: () => Promise<void>;
@@ -25,17 +25,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
 
-  const login = async (username: string, password: string) => {
-    try {
-      const response = await authAPI.login({ username, password });
-      const { token, user: userData } = response.data;
-      
-      localStorage.setItem('token', token);
-      setUser(userData);
-    } catch (error) {
-      console.error('Login failed:', error);
-      throw error;
-    }
+  const login = (token: string, user: User) => {
+    localStorage.setItem('token', token);
+    setUser(user);
   };
 
   const register = async (userData: any) => {
