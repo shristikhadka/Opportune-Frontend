@@ -61,10 +61,10 @@ const Login: React.FC = () => {
 
     try {
       const response = await authAPI.login(formData);
-      const { accessToken, username, email, firstName, lastName, role, userId } = response.data;
+      const { accessToken, username, email, firstName, lastName, role, userId, enabled } = response.data;
       
       // Create user object from response data
-      const user = { username, email, firstName, lastName, role, id: userId };
+      const user = { username, email, firstName, lastName, role, id: userId, enabled };
       
       // Store token and user data
       login(accessToken, user);

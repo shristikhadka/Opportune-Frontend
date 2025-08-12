@@ -87,12 +87,21 @@ export const jobsAPI = {
 };
 
 export const applicationsAPI = {
-  apply: (jobId: number, applicationData: any) => 
-    api.post(`/applications/${jobId}`, applicationData),
+  apply: (jobPostId: number) => 
+    api.post('/applications', null, { params: { jobPostId } }),
   getUserApplications: () => api.get('/applications/user'),
-  getJobApplications: (jobId: number) => api.get(`/applications/job/${jobId}`),
+  getJobApplications: (jobPostId: number) => api.get(`/applications/job/${jobPostId}`),
   updateStatus: (applicationId: number, status: string) => 
-    api.put(`/applications/${applicationId}/status`, { status }),
+    api.put(`/applications/${applicationId}/status`, null, { params: { status } }),
+  withdraw: (applicationId: number) => api.delete(`/applications/${applicationId}`),
+};
+
+export const adminAPI = {
+  getAllUsers: () => api.get('/auth/users'),
+  getUsersByRole: (role: string) => api.get(`/auth/users/role/${role}`),
+  deleteUser: (userId: number) => api.delete(`/auth/users/${userId}`),
+  toggleUserStatus: (userId: number) => api.patch(`/auth/users/${userId}/toggle-status`),
+  getJobAnalytics: () => api.get('/jobs/analytics'),
 };
 
 export default api;

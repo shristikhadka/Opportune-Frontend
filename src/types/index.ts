@@ -6,6 +6,7 @@ export interface User {
   firstName: string;
   lastName: string;
   role: 'USER' | 'HR' | 'ADMIN';
+  enabled: boolean;
   createdAt?: string;
   updatedAt?: string;
 }
@@ -48,17 +49,25 @@ export interface JobSearchResponse {
   };
 }
 
+export interface JobAnalytics {
+  totalJobs: number;
+  jobsByExperienceLevel: Record<string, number>;
+  topTechnologies: Record<string, number>;
+  jobsByCompany: Record<string, number>;
+  jobsPostedThisWeek: number;
+  jobsPostedThisMonth: number;
+}
+
 // Application related types
 export interface Application {
   id: number;
-  jobId: number;
+  jobPostId: number;
+  jobTitle: string;
+  company: string;
   userId: number;
-  status: 'PENDING' | 'REVIEWING' | 'INTERVIEW' | 'ACCEPTED' | 'REJECTED';
-  coverLetter?: string;
+  status: 'APPLIED' | 'INTERVIEW' | 'REJECTED' | 'HIRED';
   appliedAt: string;
   updatedAt: string;
-  job?: JobPost;
-  user?: User;
 }
 
 // Auth related types
