@@ -50,7 +50,36 @@ export const authAPI = {
 export const jobsAPI = {
   getAll: (params?: any) => api.get('/jobs', { params }),
   getById: (id: number) => api.get(`/jobs/${id}`),
-  search: (searchParams: any) => api.post('/jobs/search', searchParams),
+  search: (searchParams: any) => {
+    // Map frontend field names to backend field names
+    const backendParams = {
+      searchTerm: searchParams.query,
+      technology: searchParams.technology,
+      location: searchParams.location,
+      company: searchParams.company,
+      salary: searchParams.minSalary,
+      minExperience: searchParams.minExperience,
+      maxExperience: searchParams.maxExperience,
+      jobType: searchParams.jobType,
+      page: searchParams.page || 0,
+      size: searchParams.size || 10,
+      sortBy: searchParams.sortBy || 'postDate',
+      sortDir: searchParams.sortOrder || 'desc',
+      useFullTextSearch: searchParams.useFullTextSearch || false
+    };
+    
+    // Remove undefined values
+    Object.keys(backendParams).forEach(key => {
+      if ((backendParams as any)[key] === undefined) {
+        delete (backendParams as any)[key];
+      }
+    });
+    
+    console.log('🔍 Frontend params:', searchParams);
+    console.log('🔍 Backend params:', backendParams);
+    
+    return api.post('/jobs/search', backendParams);
+  },
   create: (jobData: any) => api.post('/jobs', jobData),
   update: (id: number, jobData: any) => api.put(`/jobs/${id}`, jobData),
   delete: (id: number) => api.delete(`/jobs/${id}`),

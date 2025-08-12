@@ -13,15 +13,14 @@ export interface User {
 // Job related types
 export interface JobPost {
   postId: number;
-  company: string;
-  location: string;
   postProfile: string;
   postDesc: string;
+  postTechStack: string[];
   reqExperience: number;
+  location: string;
   salary: number;
+  company: string;
   postDate: string;
-  createdAt: string;
-  updatedAt: string;
 }
 
 export interface JobSearchRequest {
@@ -36,6 +35,7 @@ export interface JobSearchRequest {
   size?: number;
   sortBy?: string;
   sortOrder?: 'asc' | 'desc';
+  useFullTextSearch?: boolean;
 }
 
 export interface JobSearchResponse {
