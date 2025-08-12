@@ -66,6 +66,12 @@ const JobDetail: React.FC = () => {
       return;
     }
 
+    // Prevent admins and HR managers from applying for jobs
+    if (user.role === 'ADMIN' || user.role === 'HR') {
+      alert('Administrators and HR managers cannot apply for jobs. Please use a regular user account.');
+      return;
+    }
+
     try {
       setApplying(true);
       await applicationsAPI.apply(parseInt(id!));
@@ -73,7 +79,18 @@ const JobDetail: React.FC = () => {
       navigate('/applications');
     } catch (err: any) {
       console.error('Error applying for job:', err);
-      const errorMessage = err.response?.data || 'Failed to submit application. Please try again.';
+      let errorMessage = 'Failed to submit application. Please try again.';
+      
+      if (err.response?.data) {
+        if (typeof err.response.data === 'string') {
+          errorMessage = err.response.data;
+        } else if (err.response.data.message) {
+          errorMessage = err.response.data.message;
+        } else if (err.response.data.error) {
+          errorMessage = err.response.data.error;
+        }
+      }
+      
       alert(errorMessage);
     } finally {
       setApplying(false);
@@ -226,13 +243,27 @@ const JobDetail: React.FC = () => {
             <p className="text-gray-600 mb-6">
               Ready to join our team? Click the button below to submit your application.
             </p>
-            <button
-              onClick={handleApply}
-              disabled={applying}
-              className="w-full md:w-auto px-8 py-3 bg-blue-600 text-white rounded-md hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors font-medium"
-            >
-              {applying ? 'Submitting...' : 'Apply Now'}
-            </button>
+            {user && (user.role === 'ADMIN' || user.role === 'HR') ? (
+              <div className="text-center">
+                <button
+                  disabled
+                  className="w-full md:w-auto px-8 py-3 bg-gray-400 text-white rounded-md cursor-not-allowed font-medium"
+                >
+                  Not Available for Admin/HR
+                </button>
+                <p className="text-sm text-gray-500 mt-2">
+                  Administrators and HR managers cannot apply for jobs.
+                </p>
+              </div>
+            ) : (
+              <button
+                onClick={handleApply}
+                disabled={applying}
+                className="w-full md:w-auto px-8 py-3 bg-blue-600 text-white rounded-md hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors font-medium"
+              >
+                {applying ? 'Submitting...' : 'Apply Now'}
+              </button>
+            )}
           </div>
         </div>
 
