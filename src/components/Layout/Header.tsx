@@ -29,12 +29,20 @@ const Header: React.FC = () => {
               Jobs
             </Link>
             {user?.role === 'HR' && (
-              <Link
-                to="/applications"
-                className="text-gray-700 hover:text-gray-900 px-3 py-2 rounded-md text-sm font-medium"
-              >
-                Applications
-              </Link>
+              <>
+                <Link
+                  to="/hr-dashboard"
+                  className="text-gray-700 hover:text-gray-900 px-3 py-2 rounded-md text-sm font-medium"
+                >
+                  HR Dashboard
+                </Link>
+                <Link
+                  to="/applications"
+                  className="text-gray-700 hover:text-gray-900 px-3 py-2 rounded-md text-sm font-medium"
+                >
+                  Applications
+                </Link>
+              </>
             )}
             {user?.role === 'ADMIN' && (
               <Link

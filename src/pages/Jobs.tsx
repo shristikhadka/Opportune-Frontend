@@ -11,6 +11,7 @@ const Jobs: React.FC = () => {
   const [error, setError] = useState<string | null>(null);
   const [searchTerm, setSearchTerm] = useState('');
   const [locationFilter, setLocationFilter] = useState('');
+  const [companyFilter, setCompanyFilter] = useState('');
   const [experienceFilter, setExperienceFilter] = useState('');
   const [salaryFilter, setSalaryFilter] = useState('');
   const [sortBy, setSortBy] = useState('postDate');
@@ -56,6 +57,7 @@ const Jobs: React.FC = () => {
       const searchRequest: JobSearchRequest = {
         query: searchTerm || undefined,
         location: locationFilter || undefined,
+        company: companyFilter || undefined,
         minExperience: experienceFilter ? parseInt(experienceFilter) : undefined,
         minSalary: salaryFilter ? parseInt(salaryFilter) : undefined,
         sortBy,
@@ -92,6 +94,7 @@ const Jobs: React.FC = () => {
   const clearFilters = () => {
     setSearchTerm('');
     setLocationFilter('');
+    setCompanyFilter('');
     setExperienceFilter('');
     setSalaryFilter('');
     setSortBy('postDate');
@@ -144,7 +147,7 @@ const Jobs: React.FC = () => {
 
       {/* Search and Filters */}
       <div className="bg-white rounded-lg shadow-md p-6 mb-8">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4 mb-4">
           {/* Search Input */}
           <div>
             <label htmlFor="search" className="block text-sm font-medium text-gray-700 mb-1">
@@ -171,6 +174,21 @@ const Jobs: React.FC = () => {
               value={locationFilter}
               onChange={(e) => setLocationFilter(e.target.value)}
               placeholder="City, state, or remote..."
+              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+            />
+          </div>
+
+          {/* Company Filter */}
+          <div>
+            <label htmlFor="company" className="block text-sm font-medium text-gray-700 mb-1">
+              Company
+            </label>
+            <input
+              type="text"
+              id="company"
+              value={companyFilter}
+              onChange={(e) => setCompanyFilter(e.target.value)}
+              placeholder="Company name..."
               className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
             />
           </div>

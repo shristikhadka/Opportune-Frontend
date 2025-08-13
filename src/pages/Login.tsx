@@ -70,8 +70,10 @@ const Login: React.FC = () => {
       login(accessToken, user);
       
       // Redirect based on user role
-      if (user.role === 'HR' || user.role === 'ADMIN') {
+      if (user.role === 'ADMIN') {
         navigate('/admin');
+      } else if (user.role === 'HR') {
+        navigate('/hr-dashboard');
       } else {
         navigate('/jobs');
       }

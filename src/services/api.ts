@@ -84,6 +84,7 @@ export const jobsAPI = {
   update: (id: number, jobData: any) => api.put(`/jobs/${id}`, jobData),
   delete: (id: number) => api.delete(`/jobs/${id}`),
   getSuggestions: (query: string) => api.get(`/jobs/suggestions?q=${query}`),
+  getMyJobs: () => api.get('/jobs/my-jobs'),
 };
 
 export const applicationsAPI = {
@@ -91,6 +92,7 @@ export const applicationsAPI = {
     api.post('/applications', null, { params: { jobPostId } }),
   getUserApplications: () => api.get('/applications/user'),
   getJobApplications: (jobPostId: number) => api.get(`/applications/job/${jobPostId}`),
+  getMyJobApplications: () => api.get('/applications/hr-applications'),
   updateStatus: (applicationId: number, status: string) => 
     api.put(`/applications/${applicationId}/status`, null, { params: { status } }),
   withdraw: (applicationId: number) => api.delete(`/applications/${applicationId}`),

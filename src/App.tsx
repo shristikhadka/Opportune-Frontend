@@ -12,6 +12,7 @@ const Jobs = React.lazy(() => import('./pages/Jobs'));
 const JobDetail = React.lazy(() => import('./pages/JobDetail'));
 const Applications = React.lazy(() => import('./pages/Applications'));
 const Admin = React.lazy(() => import('./pages/Admin'));
+const HRDashboard = React.lazy(() => import('./pages/HRDashboard'));
 
 function App() {
   return (
@@ -29,6 +30,7 @@ function App() {
                 <Route path="/jobs/:id" element={<JobDetail />} />
                 <Route path="/applications" element={<Applications />} />
                 <Route path="/admin" element={<Admin />} />
+                <Route path="/hr-dashboard" element={<HRDashboard />} />
               </Routes>
             </React.Suspense>
           </main>

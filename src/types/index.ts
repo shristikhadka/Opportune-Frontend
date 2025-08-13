@@ -7,6 +7,7 @@ export interface User {
   lastName: string;
   role: 'USER' | 'HR' | 'ADMIN';
   enabled: boolean;
+  companyName?: string;
   createdAt?: string;
   updatedAt?: string;
 }
