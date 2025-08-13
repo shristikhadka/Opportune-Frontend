@@ -286,6 +286,12 @@ const Applications: React.FC = () => {
                 
                 <div className="flex gap-2 mt-4 lg:mt-0">
                   <Link
+                    to={`/applications/${application.id}`}
+                    className="px-4 py-2 text-sm bg-blue-100 text-blue-700 rounded-md hover:bg-blue-200 transition-colors"
+                  >
+                    View Details
+                  </Link>
+                  <Link
                     to={`/jobs/${application.jobPostId}`}
                     className="px-4 py-2 text-sm bg-gray-100 text-gray-700 rounded-md hover:bg-gray-200 transition-colors"
                   >

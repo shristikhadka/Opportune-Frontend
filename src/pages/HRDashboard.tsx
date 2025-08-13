@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import { Link } from 'react-router-dom';
 import { useAuth } from '../hooks/useAuth';
 import { applicationsAPI, jobsAPI } from '../services/api';
 import { Application, JobPost } from '../types';
@@ -576,16 +577,24 @@ const HRDashboard: React.FC = () => {
                             </span>
                           </td>
                           <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                            <select
-                              value={application.status}
-                              onChange={(e) => handleUpdateApplicationStatus(application.id, e.target.value)}
-                              className="text-sm border border-gray-300 rounded-md px-2 py-1 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                            >
-                              <option value="APPLIED">Applied</option>
-                              <option value="INTERVIEW">Interview</option>
-                              <option value="REJECTED">Rejected</option>
-                              <option value="HIRED">Hired</option>
-                            </select>
+                            <div className="flex items-center space-x-2">
+                              <select
+                                value={application.status}
+                                onChange={(e) => handleUpdateApplicationStatus(application.id, e.target.value)}
+                                className="text-sm border border-gray-300 rounded-md px-2 py-1 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                              >
+                                <option value="APPLIED">Applied</option>
+                                <option value="INTERVIEW">Interview</option>
+                                <option value="REJECTED">Rejected</option>
+                                <option value="HIRED">Hired</option>
+                              </select>
+                              <Link
+                                to={`/applications/${application.id}`}
+                                className="text-blue-600 hover:text-blue-900 text-sm"
+                              >
+                                View
+                              </Link>
+                            </div>
                           </td>
                         </tr>
                       ))}

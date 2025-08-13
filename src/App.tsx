@@ -11,6 +11,7 @@ const Register = React.lazy(() => import('./pages/Register'));
 const Jobs = React.lazy(() => import('./pages/Jobs'));
 const JobDetail = React.lazy(() => import('./pages/JobDetail'));
 const Applications = React.lazy(() => import('./pages/Applications'));
+const ApplicationDetail = React.lazy(() => import('./pages/ApplicationDetail'));
 const Admin = React.lazy(() => import('./pages/Admin'));
 const HRDashboard = React.lazy(() => import('./pages/HRDashboard'));
 
@@ -28,9 +29,10 @@ function App() {
                 <Route path="/register" element={<Register />} />
                 <Route path="/jobs" element={<Jobs />} />
                 <Route path="/jobs/:id" element={<JobDetail />} />
-                <Route path="/applications" element={<Applications />} />
-                <Route path="/admin" element={<Admin />} />
-                <Route path="/hr-dashboard" element={<HRDashboard />} />
+                                  <Route path="/applications" element={<Applications />} />
+                  <Route path="/applications/:applicationId" element={<ApplicationDetail />} />
+                  <Route path="/admin" element={<Admin />} />
+                  <Route path="/hr-dashboard" element={<HRDashboard />} />
               </Routes>
             </React.Suspense>
           </main>

@@ -91,6 +91,7 @@ export const applicationsAPI = {
   apply: (jobPostId: number) => 
     api.post('/applications', null, { params: { jobPostId } }),
   getUserApplications: () => api.get('/applications/user'),
+  getApplicationById: (applicationId: number) => api.get(`/applications/${applicationId}`),
   getJobApplications: (jobPostId: number) => api.get(`/applications/job/${jobPostId}`),
   getMyJobApplications: () => api.get('/applications/hr-applications'),
   updateStatus: (applicationId: number, status: string) => 
