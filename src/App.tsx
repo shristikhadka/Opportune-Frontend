@@ -1,8 +1,8 @@
 import React from 'react';
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
-import { AuthProvider } from './hooks/useAuth';
-import Header from './components/Layout/Header';
+import { Route, BrowserRouter as Router, Routes } from 'react-router-dom';
 import './App.css';
+import Header from './components/Layout/Header';
+import { AuthProvider } from './hooks/useAuth';
 
 // Lazy load components for better performance
 const Home = React.lazy(() => import('./pages/Home'));
@@ -14,6 +14,7 @@ const Applications = React.lazy(() => import('./pages/Applications'));
 const ApplicationDetail = React.lazy(() => import('./pages/ApplicationDetail'));
 const Admin = React.lazy(() => import('./pages/Admin'));
 const HRDashboard = React.lazy(() => import('./pages/HRDashboard'));
+const FileManagement = React.lazy(() => import('./pages/FileManagement'));
 
 function App() {
   return (
@@ -29,10 +30,11 @@ function App() {
                 <Route path="/register" element={<Register />} />
                 <Route path="/jobs" element={<Jobs />} />
                 <Route path="/jobs/:id" element={<JobDetail />} />
-                                  <Route path="/applications" element={<Applications />} />
-                  <Route path="/applications/:applicationId" element={<ApplicationDetail />} />
-                  <Route path="/admin" element={<Admin />} />
-                  <Route path="/hr-dashboard" element={<HRDashboard />} />
+                                                  <Route path="/applications" element={<Applications />} />
+                <Route path="/applications/:applicationId" element={<ApplicationDetail />} />
+                <Route path="/files" element={<FileManagement />} />
+                <Route path="/admin" element={<Admin />} />
+                <Route path="/hr-dashboard" element={<HRDashboard />} />
               </Routes>
             </React.Suspense>
           </main>

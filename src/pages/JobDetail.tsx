@@ -1,8 +1,9 @@
 import React, { useEffect, useState } from 'react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
+import FileUploadComponent from '../components/FileUpload';
 import { useAuth } from '../hooks/useAuth';
-import { applicationsAPI, jobsAPI } from '../services/api';
-import { JobPost } from '../types';
+import { applicationsAPI, fileUploadAPI, jobsAPI } from '../services/api';
+import { FileUpload, JobPost } from '../types';
 
 const JobDetail: React.FC = () => {
   const { id } = useParams<{ id: string }>();
@@ -14,6 +15,10 @@ const JobDetail: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [applying, setApplying] = useState(false);
+  const [selectedFile, setSelectedFile] = useState<FileUpload | null>(null);
+  const [showFileUpload, setShowFileUpload] = useState(false);
+  const [userFiles, setUserFiles] = useState<FileUpload[]>([]);
+  const [loadingFiles, setLoadingFiles] = useState(false);
 
   useEffect(() => {
     if (id) {
@@ -21,6 +26,12 @@ const JobDetail: React.FC = () => {
       fetchRelatedJobs();
     }
   }, [id]);
+
+  useEffect(() => {
+    if (user && user.role === 'USER') {
+      fetchUserFiles();
+    }
+  }, [user]);
 
   const fetchJobDetails = async () => {
     try {
@@ -60,6 +71,19 @@ const JobDetail: React.FC = () => {
     }
   };
 
+  const fetchUserFiles = async () => {
+    try {
+      setLoadingFiles(true);
+      const response = await fileUploadAPI.getUserFiles();
+      setUserFiles(response.data);
+    } catch (err) {
+      console.error('Error fetching user files:', err);
+      // Don't set error for files, it's not critical for job application
+    } finally {
+      setLoadingFiles(false);
+    }
+  };
+
   const handleApply = async () => {
     if (!user) {
       navigate('/login');
@@ -74,7 +98,7 @@ const JobDetail: React.FC = () => {
 
     try {
       setApplying(true);
-      await applicationsAPI.apply(parseInt(id!));
+      await applicationsAPI.apply(parseInt(id!), selectedFile?.id);
       alert('Application submitted successfully! You can track your application status in the Applications page.');
       navigate('/applications');
     } catch (err: any) {
@@ -240,9 +264,7 @@ const JobDetail: React.FC = () => {
           {/* Apply Section */}
           <div className="bg-white rounded-lg shadow-md p-6">
             <h2 className="text-2xl font-bold text-gray-900 mb-4">Apply for this Position</h2>
-            <p className="text-gray-600 mb-6">
-              Ready to join our team? Click the button below to submit your application.
-            </p>
+            
             {user && (user.role === 'ADMIN' || user.role === 'HR') ? (
               <div className="text-center">
                 <button
@@ -256,13 +278,106 @@ const JobDetail: React.FC = () => {
                 </p>
               </div>
             ) : (
-              <button
-                onClick={handleApply}
-                disabled={applying}
-                className="w-full md:w-auto px-8 py-3 bg-blue-600 text-white rounded-md hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors font-medium"
-              >
-                {applying ? 'Submitting...' : 'Apply Now'}
-              </button>
+              <div className="space-y-6">
+                {/* Resume Selection */}
+                <div>
+                  <h3 className="text-lg font-semibold text-gray-900 mb-3">Select Your Resume</h3>
+                  
+                  {/* Existing Files */}
+                  {userFiles.length > 0 && (
+                    <div className="mb-4">
+                      <p className="text-sm text-gray-600 mb-2">Choose from your uploaded files:</p>
+                      <div className="space-y-2">
+                        {userFiles.map((file) => (
+                          <div
+                            key={file.id}
+                            className={`p-3 border rounded-lg cursor-pointer transition-colors ${
+                              selectedFile?.id === file.id
+                                ? 'border-blue-500 bg-blue-50'
+                                : 'border-gray-200 hover:border-gray-300'
+                            }`}
+                            onClick={() => setSelectedFile(file)}
+                          >
+                            <div className="flex items-center justify-between">
+                              <div className="flex items-center space-x-3">
+                                <svg className="w-5 h-5 text-gray-400" fill="currentColor" viewBox="0 0 20 20">
+                                  <path fillRule="evenodd" d="M4 4a2 2 0 012-2h4.586A2 2 0 0112 2.586L15.414 6A2 2 0 0116 7.414V16a2 2 0 01-2 2H6a2 2 0 01-2-2V4z" clipRule="evenodd" />
+                                </svg>
+                                <div>
+                                  <p className="text-sm font-medium text-gray-900">{file.originalFilename}</p>
+                                  <p className="text-xs text-gray-500">
+                                    {new Date(file.uploadDate).toLocaleDateString()} • {Math.round(file.fileSize / 1024)} KB
+                                  </p>
+                                </div>
+                              </div>
+                              {selectedFile?.id === file.id && (
+                                <svg className="w-5 h-5 text-blue-500" fill="currentColor" viewBox="0 0 20 20">
+                                  <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                                </svg>
+                              )}
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Upload New File */}
+                  <div className="mb-4">
+                    <button
+                      type="button"
+                      onClick={() => setShowFileUpload(!showFileUpload)}
+                      className="text-blue-600 hover:text-blue-700 text-sm font-medium"
+                    >
+                      {showFileUpload ? 'Cancel Upload' : '+ Upload New Resume'}
+                    </button>
+                  </div>
+
+                  {/* File Upload Component */}
+                  {showFileUpload && (
+                    <div className="mb-4">
+                      <FileUploadComponent
+                        onUploadSuccess={(file) => {
+                          setUserFiles(prev => [file, ...prev]);
+                          setSelectedFile(file);
+                          setShowFileUpload(false);
+                        }}
+                        onUploadError={(error) => {
+                          alert(error);
+                        }}
+                      />
+                    </div>
+                  )}
+
+                  {/* No Files Message */}
+                  {userFiles.length === 0 && !showFileUpload && (
+                    <div className="text-center py-4 border-2 border-dashed border-gray-300 rounded-lg">
+                      <p className="text-sm text-gray-500 mb-2">No resumes uploaded yet</p>
+                      <button
+                        type="button"
+                        onClick={() => setShowFileUpload(true)}
+                        className="text-blue-600 hover:text-blue-700 text-sm font-medium"
+                      >
+                        Upload your first resume
+                      </button>
+                    </div>
+                  )}
+                </div>
+
+                {/* Apply Button */}
+                <div className="pt-4 border-t border-gray-200">
+                  <button
+                    onClick={handleApply}
+                    disabled={applying || (!selectedFile && userFiles.length > 0)}
+                    className="w-full md:w-auto px-8 py-3 bg-blue-600 text-white rounded-md hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors font-medium"
+                  >
+                    {applying ? 'Submitting...' : 'Apply Now'}
+                  </button>
+                  {userFiles.length > 0 && !selectedFile && (
+                    <p className="text-sm text-red-600 mt-2">Please select a resume to continue</p>
+                  )}
+                </div>
+              </div>
             )}
           </div>
         </div>

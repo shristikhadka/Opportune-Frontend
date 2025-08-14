@@ -66,9 +66,15 @@ export interface Application {
   jobTitle: string;
   company: string;
   userId: number;
+  userName?: string;
+  userEmail?: string;
+  userFirstName?: string;
+  userLastName?: string;
   status: 'APPLIED' | 'INTERVIEW' | 'REJECTED' | 'HIRED';
   appliedAt: string;
   updatedAt: string;
+  resumeFileId?: number;
+  resumeFileName?: string;
 }
 
 // Auth related types
@@ -105,10 +111,12 @@ export interface FileUpload {
   fileType: string;
   fileSize: number;
   contentType: string;
-  scanStatus: 'PENDING' | 'CLEAN' | 'INFECTED';
+  uploadDate: string;
+  scanStatus: 'PENDING' | 'SCANNING' | 'CLEAN' | 'INFECTED' | 'ERROR';
   verified: boolean;
+  expiresAt?: string;
   description?: string;
-  uploadedAt: string;
+  downloadUrl?: string;
 }
 
 // Search suggestion types

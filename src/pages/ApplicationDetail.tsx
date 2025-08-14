@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
 import { useAuth } from '../hooks/useAuth';
-import { applicationsAPI } from '../services/api';
+import { applicationsAPI, fileUploadAPI } from '../services/api';
 import { Application } from '../types';
 
 const ApplicationDetail: React.FC = () => {
@@ -73,6 +73,20 @@ const ApplicationDetail: React.FC = () => {
       alert('Failed to withdraw application. Please try again.');
     } finally {
       setWithdrawing(false);
+    }
+  };
+
+  const handleViewResume = async (resumeFileId: number) => {
+    try {
+      const response = await fileUploadAPI.getFileByIdForHR(resumeFileId);
+      if (response.data.downloadUrl) {
+        window.open(response.data.downloadUrl, '_blank');
+      } else {
+        alert('Resume file not available for download.');
+      }
+    } catch (err) {
+      console.error('Error viewing resume:', err);
+      alert('Failed to view resume. Please try again.');
     }
   };
 
@@ -315,9 +329,31 @@ const ApplicationDetail: React.FC = () => {
                 <p className="text-sm text-gray-900">#{application.jobPostId}</p>
               </div>
               <div>
-                <p className="text-sm font-medium text-gray-500">User ID</p>
-                <p className="text-sm text-gray-900">#{application.userId}</p>
+                <p className="text-sm font-medium text-gray-500">Applicant</p>
+                <p className="text-sm text-gray-900">
+                  {application.userFirstName && application.userLastName 
+                    ? `${application.userFirstName} ${application.userLastName}`
+                    : application.userName || `User #${application.userId}`
+                  }
+                </p>
+                {application.userEmail && (
+                  <p className="text-xs text-gray-500">{application.userEmail}</p>
+                )}
               </div>
+              {application.resumeFileName && (
+                <div>
+                  <p className="text-sm font-medium text-gray-500">Resume</p>
+                  <p className="text-sm text-blue-600">📄 {application.resumeFileName}</p>
+                  {application.resumeFileId && (
+                    <button
+                      onClick={() => handleViewResume(application.resumeFileId!)}
+                      className="mt-1 text-xs text-green-600 hover:text-green-800 underline"
+                    >
+                      View Resume
+                    </button>
+                  )}
+                </div>
+              )}
             </div>
           </div>
         </div>

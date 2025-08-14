@@ -88,8 +88,8 @@ export const jobsAPI = {
 };
 
 export const applicationsAPI = {
-  apply: (jobPostId: number) => 
-    api.post('/applications', null, { params: { jobPostId } }),
+  apply: (jobPostId: number, resumeFileId?: number) => 
+    api.post('/applications', null, { params: { jobPostId, ...(resumeFileId && { resumeFileId }) } }),
   getUserApplications: () => api.get('/applications/user'),
   getApplicationById: (applicationId: number) => api.get(`/applications/${applicationId}`),
   getJobApplications: (jobPostId: number) => api.get(`/applications/job/${jobPostId}`),
@@ -105,6 +105,27 @@ export const adminAPI = {
   deleteUser: (userId: number) => api.delete(`/auth/users/${userId}`),
   toggleUserStatus: (userId: number) => api.patch(`/auth/users/${userId}/toggle-status`),
   getJobAnalytics: () => api.get('/jobs/analytics'),
+};
+
+export const fileUploadAPI = {
+  uploadResume: (file: File, description?: string) => {
+    const formData = new FormData();
+    formData.append('file', file);
+    if (description) {
+      formData.append('description', description);
+    }
+    return api.post('/files/upload/resume', formData, {
+      headers: {
+        'Content-Type': 'multipart/form-data',
+      },
+    });
+  },
+  getUserFiles: () => api.get('/files/user'),
+  getFileById: (fileId: number) => api.get(`/files/${fileId}`),
+  deleteFile: (fileId: number) => api.delete(`/files/${fileId}`),
+  // HR endpoints
+  getFilesForUser: (userId: number) => api.get(`/files/hr/user/${userId}`),
+  getFileByIdForHR: (fileId: number) => api.get(`/files/hr/${fileId}`),
 };
 
 export default api;

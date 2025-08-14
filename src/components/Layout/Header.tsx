@@ -28,6 +28,14 @@ const Header: React.FC = () => {
             >
               Jobs
             </Link>
+            {user?.role === 'USER' && (
+              <Link
+                to="/files"
+                className="text-gray-700 hover:text-gray-900 px-3 py-2 rounded-md text-sm font-medium"
+              >
+                My Files
+              </Link>
+            )}
             {user?.role === 'HR' && (
               <>
                 <Link
@@ -36,12 +44,18 @@ const Header: React.FC = () => {
                 >
                   HR Dashboard
                 </Link>
-                <Link
-                  to="/applications"
-                  className="text-gray-700 hover:text-gray-900 px-3 py-2 rounded-md text-sm font-medium"
-                >
-                  Applications
-                </Link>
+                              <Link
+                to="/applications"
+                className="text-gray-700 hover:text-gray-900 px-3 py-2 rounded-md text-sm font-medium"
+              >
+                Applications
+              </Link>
+              <Link
+                to="/files"
+                className="text-gray-700 hover:text-gray-900 px-3 py-2 rounded-md text-sm font-medium"
+              >
+                My Files
+              </Link>
               </>
             )}
             {user?.role === 'ADMIN' && (

@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useAuth } from '../hooks/useAuth';
-import { applicationsAPI, jobsAPI } from '../services/api';
+import { applicationsAPI, fileUploadAPI, jobsAPI } from '../services/api';
 import { Application, JobPost } from '../types';
 
 const HRDashboard: React.FC = () => {
@@ -50,6 +50,9 @@ const HRDashboard: React.FC = () => {
       
       setMyJobs(jobsResponse.data || []);
       setApplications(applicationsResponse.data || []);
+      
+      // Debug: Log the applications data to see what we're getting
+      console.log('🔍 HR Dashboard - Applications data:', applicationsResponse.data);
       
       // Calculate stats
       const totalJobs = jobsResponse.data?.length || 0;
@@ -149,6 +152,20 @@ const HRDashboard: React.FC = () => {
     } catch (err: any) {
       console.error('Error updating application status:', err);
       alert('Failed to update application status. Please try again.');
+    }
+  };
+
+  const handleViewResume = async (resumeFileId: number) => {
+    try {
+      const response = await fileUploadAPI.getFileByIdForHR(resumeFileId);
+      if (response.data.downloadUrl) {
+        window.open(response.data.downloadUrl, '_blank');
+      } else {
+        alert('Resume file not available for download.');
+      }
+    } catch (err) {
+      console.error('Error viewing resume:', err);
+      alert('Failed to view resume. Please try again.');
     }
   };
 
@@ -558,8 +575,19 @@ const HRDashboard: React.FC = () => {
                           <td className="px-6 py-4 whitespace-nowrap">
                             <div>
                               <div className="text-sm font-medium text-gray-900">
-                                {application.userId} {/* We'll need to fetch user details */}
+                                {application.userFirstName && application.userLastName 
+                                  ? `${application.userFirstName} ${application.userLastName}`
+                                  : application.userName || `User #${application.userId}`
+                                }
                               </div>
+                              <div className="text-sm text-gray-500">
+                                {application.userEmail || 'No email provided'}
+                              </div>
+                              {application.resumeFileName && (
+                                <div className="text-xs text-blue-600 mt-1">
+                                  📄 {application.resumeFileName}
+                                </div>
+                              )}
                             </div>
                           </td>
                           <td className="px-6 py-4 whitespace-nowrap">
@@ -594,6 +622,14 @@ const HRDashboard: React.FC = () => {
                               >
                                 View
                               </Link>
+                              {application.resumeFileId && (
+                                <button
+                                  onClick={() => handleViewResume(application.resumeFileId!)}
+                                  className="text-green-600 hover:text-green-900 text-sm ml-2"
+                                >
+                                  Resume
+                                </button>
+                              )}
                             </div>
                           </td>
                         </tr>
