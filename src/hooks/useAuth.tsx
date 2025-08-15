@@ -5,10 +5,11 @@ import { User } from '../types';
 interface AuthContextType {
   user: User | null;
   loading: boolean;
-  login: (token: string, user: User) => void;
+  login: (token: string, user: User) => Promise<void>;
   register: (userData: any) => Promise<void>;
   logout: () => void;
   checkAuth: () => Promise<void>;
+  updateUser: (user: User) => void;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -25,9 +26,18 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
 
-  const login = (token: string, user: User) => {
+  const login = async (token: string, user: User) => {
     localStorage.setItem('token', token);
     setUser(user);
+    
+    // Fetch complete profile to get all user data including phone number
+    try {
+      const response = await authAPI.profile();
+      setUser(response.data);
+    } catch (error) {
+      console.error('Failed to fetch complete profile after login:', error);
+      // Keep the basic user data from login if profile fetch fails
+    }
   };
 
   const register = async (userData: any) => {
@@ -66,6 +76,10 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
   };
 
+  const updateUser = (user: User) => {
+    setUser(user);
+  };
+
   useEffect(() => {
     checkAuth();
   }, []);
@@ -77,6 +91,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     register,
     logout,
     checkAuth,
+    updateUser,
   };
 
   return (

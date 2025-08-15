@@ -15,6 +15,8 @@ const ApplicationDetail = React.lazy(() => import('./pages/ApplicationDetail'));
 const Admin = React.lazy(() => import('./pages/Admin'));
 const HRDashboard = React.lazy(() => import('./pages/HRDashboard'));
 const FileManagement = React.lazy(() => import('./pages/FileManagement'));
+const UserProfile = React.lazy(() => import('./pages/UserProfile'));
+const InviteAcceptance = React.lazy(() => import('./pages/InviteAcceptance'));
 
 function App() {
   return (
@@ -33,8 +35,10 @@ function App() {
                                                   <Route path="/applications" element={<Applications />} />
                 <Route path="/applications/:applicationId" element={<ApplicationDetail />} />
                 <Route path="/files" element={<FileManagement />} />
+                <Route path="/profile" element={<UserProfile />} />
                 <Route path="/admin" element={<Admin />} />
                 <Route path="/hr-dashboard" element={<HRDashboard />} />
+                <Route path="/invite/:token" element={<InviteAcceptance />} />
               </Routes>
             </React.Suspense>
           </main>

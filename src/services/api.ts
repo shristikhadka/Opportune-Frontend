@@ -45,6 +45,12 @@ export const authAPI = {
   register: (userData: { username: string; email: string; password: string; firstName: string; lastName: string }) =>
     api.post('/auth/register', userData),
   profile: () => api.get('/auth/profile'),
+  updateProfile: (profileData: { firstName: string; lastName: string; email: string; phoneNumber?: string; companyName?: string }) =>
+    api.put('/auth/profile', profileData),
+  changePassword: (passwordData: { currentPassword: string; newPassword: string }) =>
+    api.put('/auth/change-password', passwordData),
+  updateEmailPreferences: (preferences: { welcomeEmails: boolean; applicationConfirmations: boolean; statusChangeNotifications: boolean; jobAlerts: boolean; marketingEmails: boolean }) =>
+    api.put('/auth/email-preferences', preferences),
 };
 
 export const jobsAPI = {
@@ -105,6 +111,24 @@ export const adminAPI = {
   deleteUser: (userId: number) => api.delete(`/auth/users/${userId}`),
   toggleUserStatus: (userId: number) => api.patch(`/auth/users/${userId}/toggle-status`),
   getJobAnalytics: () => api.get('/jobs/analytics'),
+};
+
+export const inviteAPI = {
+  // Admin endpoints (authenticated)
+  createInvite: (inviteData: { email: string; role: string; companyName?: string; expirationDays: number }) =>
+    api.post('/auth/admin/invite-user', inviteData),
+  getAllPendingInvites: () => api.get('/auth/admin/invites'),
+  revokeInvite: (token: string) => api.delete(`/auth/admin/invites/${token}/revoke`),
+  
+  // Public endpoints (no authentication)
+  getInviteByToken: (token: string) => 
+    axios.get(`${API_BASE_URL}/auth/invite/${token}`, {
+      headers: { 'Content-Type': 'application/json' }
+    }),
+  acceptInvite: (acceptData: { token: string; username: string; password: string; firstName: string; lastName: string; phoneNumber?: string }) =>
+    axios.post(`${API_BASE_URL}/auth/accept-invite`, acceptData, {
+      headers: { 'Content-Type': 'application/json' }
+    }),
 };
 
 export const fileUploadAPI = {

@@ -8,6 +8,7 @@ export interface User {
   role: 'USER' | 'HR' | 'ADMIN';
   enabled: boolean;
   companyName?: string;
+  phoneNumber?: string;
   createdAt?: string;
   updatedAt?: string;
 }
@@ -124,4 +125,37 @@ export interface SearchSuggestion {
   type: 'company' | 'location' | 'profile';
   value: string;
   count: number;
+}
+
+// Invite related types
+export interface Invite {
+  id: number;
+  email: string;
+  role: 'USER' | 'HR' | 'ADMIN';
+  token: string;
+  companyName?: string;
+  invitedByUsername: string;
+  createdAt: string;
+  expiresAt: string;
+  acceptedAt?: string;
+  isActive: boolean;
+  isExpired: boolean;
+  isAccepted: boolean;
+  isValid: boolean;
+}
+
+export interface CreateInviteRequest {
+  email: string;
+  role: 'USER' | 'HR' | 'ADMIN';
+  companyName?: string;
+  expirationDays: number;
+}
+
+export interface AcceptInviteRequest {
+  token: string;
+  username: string;
+  password: string;
+  firstName: string;
+  lastName: string;
+  phoneNumber?: string;
 }

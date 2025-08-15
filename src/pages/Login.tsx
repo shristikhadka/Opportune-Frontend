@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import React, { useState, useEffect } from 'react';
+import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../hooks/useAuth';
 import { authAPI } from '../services/api';
 
@@ -11,9 +11,20 @@ const Login: React.FC = () => {
   const [errors, setErrors] = useState<{ [key: string]: string }>({});
   const [isLoading, setIsLoading] = useState(false);
   const [loginError, setLoginError] = useState('');
+  const [successMessage, setSuccessMessage] = useState('');
   
   const { login } = useAuth();
   const navigate = useNavigate();
+  const location = useLocation();
+
+  useEffect(() => {
+    // Check for success message from navigation state (e.g., from invite acceptance)
+    if (location.state?.message) {
+      setSuccessMessage(location.state.message);
+      // Clear the state to prevent showing the message on refresh
+      navigate(location.pathname, { replace: true });
+    }
+  }, [location, navigate]);
 
   const validateForm = () => {
     const newErrors: { [key: string]: string } = {};
@@ -67,7 +78,7 @@ const Login: React.FC = () => {
       const user = { username, email, firstName, lastName, role, id: userId, enabled };
       
       // Store token and user data
-      login(accessToken, user);
+      await login(accessToken, user);
       
       // Redirect based on user role
       if (user.role === 'ADMIN') {
@@ -108,6 +119,12 @@ const Login: React.FC = () => {
       <div className="mt-8 sm:mx-auto sm:w-full sm:max-w-md">
         <div className="bg-white py-8 px-4 shadow sm:rounded-lg sm:px-10">
           <form className="space-y-6" onSubmit={handleSubmit}>
+            {successMessage && (
+              <div className="bg-green-50 border border-green-200 text-green-700 px-4 py-3 rounded-md">
+                {successMessage}
+              </div>
+            )}
+            
             {loginError && (
               <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-md">
                 {loginError}
@@ -201,7 +218,7 @@ const Login: React.FC = () => {
               <div className="text-xs text-gray-500 space-y-1">
                 <p><strong>Admin User:</strong> admin_test / test123</p>
                 <p><strong>HR Manager:</strong> hr_test / test123</p>
-                <p><strong>Regular User:</strong> newuser / password123</p>
+                <p><strong>Regular User:</strong> newuser / password1234</p>
                 <p><strong>Regular User:</strong> regular_user / user123</p>
               </div>
             </div>
