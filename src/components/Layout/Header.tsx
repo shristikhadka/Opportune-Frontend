@@ -59,18 +59,6 @@ const Header: React.FC = () => {
                   HR Dashboard
                 </Link>
                 <Link
-                  to="/applications"
-                  className="text-gray-700 hover:text-blue-600 hover:bg-blue-50 px-4 py-2 rounded-xl text-sm font-semibold transition-all duration-200"
-                >
-                  Applications
-                </Link>
-                <Link
-                  to="/files"
-                  className="text-gray-700 hover:text-blue-600 hover:bg-blue-50 px-4 py-2 rounded-xl text-sm font-semibold transition-all duration-200"
-                >
-                  My Files
-                </Link>
-                <Link
                   to="/profile"
                   className="text-gray-700 hover:text-blue-600 hover:bg-blue-50 px-4 py-2 rounded-xl text-sm font-semibold transition-all duration-200"
                 >

@@ -1,13 +1,16 @@
 import { useState, useEffect } from 'react';
 import { JobPost } from '../types';
 
-const SAVED_JOBS_KEY = 'opportune_saved_jobs';
+const getSavedJobsKey = (userId: number | undefined) => {
+  return userId ? `opportune_saved_jobs_${userId}` : 'opportune_saved_jobs_guest';
+};
 
-export const useSavedJobs = () => {
+export const useSavedJobs = (userId?: number) => {
   const [savedJobs, setSavedJobs] = useState<number[]>([]);
 
   useEffect(() => {
-    const saved = localStorage.getItem(SAVED_JOBS_KEY);
+    const savedJobsKey = getSavedJobsKey(userId);
+    const saved = localStorage.getItem(savedJobsKey);
     if (saved) {
       try {
         setSavedJobs(JSON.parse(saved));
@@ -16,18 +19,20 @@ export const useSavedJobs = () => {
         setSavedJobs([]);
       }
     }
-  }, []);
+  }, [userId]);
 
   const saveJob = (jobId: number) => {
     const updatedSavedJobs = [...savedJobs, jobId];
     setSavedJobs(updatedSavedJobs);
-    localStorage.setItem(SAVED_JOBS_KEY, JSON.stringify(updatedSavedJobs));
+    const savedJobsKey = getSavedJobsKey(userId);
+    localStorage.setItem(savedJobsKey, JSON.stringify(updatedSavedJobs));
   };
 
   const unsaveJob = (jobId: number) => {
     const updatedSavedJobs = savedJobs.filter(id => id !== jobId);
     setSavedJobs(updatedSavedJobs);
-    localStorage.setItem(SAVED_JOBS_KEY, JSON.stringify(updatedSavedJobs));
+    const savedJobsKey = getSavedJobsKey(userId);
+    localStorage.setItem(savedJobsKey, JSON.stringify(updatedSavedJobs));
   };
 
   const toggleSaveJob = (jobId: number) => {

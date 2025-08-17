@@ -7,7 +7,7 @@ import { JobPost, JobSearchRequest } from '../types';
 
 const Jobs: React.FC = () => {
   const { user } = useAuth();
-  const { toggleSaveJob, isJobSaved, getSavedJobsFromList, savedJobsCount } = useSavedJobs();
+  const { toggleSaveJob, isJobSaved, getSavedJobsFromList, savedJobsCount } = useSavedJobs(user?.id);
   const location = useLocation();
   const [jobs, setJobs] = useState<JobPost[]>([]);
   const [loading, setLoading] = useState(true);
