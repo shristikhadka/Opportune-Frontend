@@ -147,6 +147,9 @@ export const fileUploadAPI = {
   getUserFiles: () => api.get('/files/user'),
   getFileById: (fileId: number) => api.get(`/files/${fileId}`),
   deleteFile: (fileId: number) => api.delete(`/files/${fileId}`),
+  downloadFile: (fileId: number) => api.get(`/files/${fileId}/download`, { 
+    responseType: 'blob' 
+  }),
   // HR endpoints
   getFilesForUser: (userId: number) => api.get(`/files/hr/user/${userId}`),
   getFileByIdForHR: (fileId: number) => api.get(`/files/hr/${fileId}`),

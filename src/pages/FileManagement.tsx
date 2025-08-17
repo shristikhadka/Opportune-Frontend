@@ -59,11 +59,27 @@ const FileManagement: React.FC = () => {
     }
   };
 
-  const handleDownloadFile = (file: FileUpload) => {
-    if (file.downloadUrl) {
-      window.open(file.downloadUrl, '_blank');
-    } else {
-      setError('Download URL not available for this file.');
+  const handleDownloadFile = async (file: FileUpload) => {
+    try {
+      setError(null);
+      // Use the download URL that's already available in the file object
+      const downloadUrl = file.downloadUrl;
+      
+      if (downloadUrl) {
+        // Use the S3 presigned URL to download the file
+        const link = document.createElement('a');
+        link.href = downloadUrl;
+        link.download = file.originalFilename;
+        link.target = '_blank';
+        document.body.appendChild(link);
+        link.click();
+        link.remove();
+      } else {
+        throw new Error('Download URL not available');
+      }
+    } catch (err: any) {
+      console.error('Error downloading file:', err);
+      setError('Failed to download file. Please try again.');
     }
   };
 
@@ -88,17 +104,17 @@ const FileManagement: React.FC = () => {
   const getStatusColor = (status: string) => {
     switch (status) {
       case 'CLEAN':
-        return 'bg-green-100 text-green-800';
+        return 'bg-gradient-to-r from-green-100 to-emerald-100 text-green-800 border border-green-200';
       case 'PENDING':
-        return 'bg-yellow-100 text-yellow-800';
+        return 'bg-gradient-to-r from-yellow-100 to-amber-100 text-yellow-800 border border-yellow-200';
       case 'SCANNING':
-        return 'bg-blue-100 text-blue-800';
+        return 'bg-gradient-to-r from-blue-100 to-cyan-100 text-blue-800 border border-blue-200';
       case 'INFECTED':
-        return 'bg-red-100 text-red-800';
+        return 'bg-gradient-to-r from-red-100 to-rose-100 text-red-800 border border-red-200';
       case 'ERROR':
-        return 'bg-gray-100 text-gray-800';
+        return 'bg-gradient-to-r from-gray-100 to-slate-100 text-gray-800 border border-gray-200';
       default:
-        return 'bg-gray-100 text-gray-800';
+        return 'bg-gradient-to-r from-gray-100 to-slate-100 text-gray-800 border border-gray-200';
     }
   };
 
@@ -128,52 +144,84 @@ const FileManagement: React.FC = () => {
 
   if (!user) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+      <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50 flex items-center justify-center">
         <div className="text-center">
-          <h2 className="text-2xl font-bold text-gray-900 mb-4">Access Denied</h2>
-          <p className="text-gray-600">Please log in to access your files.</p>
+          <div className="bg-gradient-to-r from-blue-100 to-purple-100 rounded-full w-20 h-20 flex items-center justify-center mx-auto mb-6">
+            <svg className="h-10 w-10 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+            </svg>
+          </div>
+          <h2 className="text-3xl font-bold bg-gradient-to-r from-blue-600 via-purple-600 to-indigo-600 bg-clip-text text-transparent mb-4">Access Denied</h2>
+          <p className="text-gray-600 text-lg mb-8">Please log in to access your files.</p>
+          <a 
+            href="/login"
+            className="inline-flex items-center px-6 py-3 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-xl hover:from-blue-700 hover:to-purple-700 transition-all duration-200 font-semibold shadow-lg hover:shadow-xl transform hover:-translate-y-0.5"
+          >
+            <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 16l-4-4m0 0l4-4m-4 4h14m-5 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h7a3 3 0 013 3v1" />
+            </svg>
+            Sign In to Opportune
+          </a>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 py-8">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Header */}
-        <div className="mb-8">
-          <div className="flex justify-between items-center">
-            <div>
-              <h1 className="text-3xl font-bold text-gray-900">My Files</h1>
-              <p className="mt-2 text-gray-600">Manage your uploaded resumes and documents</p>
+        <div className="text-center mb-12">
+          <div className="flex items-center justify-center mb-6">
+            <div className="bg-gradient-to-r from-blue-100 to-purple-100 rounded-full w-16 h-16 flex items-center justify-center mr-4">
+              <svg className="h-8 w-8 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+              </svg>
             </div>
-            <button
-              onClick={() => setShowUploadForm(!showUploadForm)}
-              className="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 transition-colors"
-            >
-              {showUploadForm ? 'Cancel Upload' : 'Upload New File'}
-            </button>
+            <div className="text-left">
+              <h1 className="text-4xl font-bold bg-gradient-to-r from-blue-600 via-purple-600 to-indigo-600 bg-clip-text text-transparent">
+                My Files
+              </h1>
+              <p className="text-xl text-gray-600 mt-2">Manage your uploaded resumes and documents</p>
+            </div>
           </div>
+          <div className="w-24 h-1 bg-gradient-to-r from-blue-500 to-purple-500 mx-auto rounded-full mb-8"></div>
+          
+          <button
+            onClick={() => setShowUploadForm(!showUploadForm)}
+            className={`inline-flex items-center px-6 py-3 border border-transparent rounded-xl text-base font-semibold transition-all duration-200 transform focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 shadow-lg hover:shadow-xl hover:-translate-y-0.5 ${
+              showUploadForm 
+                ? 'bg-gradient-to-r from-gray-500 to-gray-600 text-white hover:from-gray-600 hover:to-gray-700'
+                : 'bg-gradient-to-r from-blue-600 to-purple-600 text-white hover:from-blue-700 hover:to-purple-700'
+            }`}
+          >
+            <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              {showUploadForm ? (
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+              ) : (
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+              )}
+            </svg>
+            {showUploadForm ? 'Cancel Upload' : 'Upload New File'}
+          </button>
         </div>
 
         {/* Error Message */}
         {error && (
-          <div className="mb-6 bg-red-50 border border-red-200 rounded-md p-4">
-            <div className="flex">
-              <div className="flex-shrink-0">
-                <svg className="h-5 w-5 text-red-400" viewBox="0 0 20 20" fill="currentColor">
-                  <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
+          <div className="mb-8 mx-auto max-w-md">
+            <div className="bg-gradient-to-r from-red-50 to-rose-50 border border-red-200/60 text-red-700 px-6 py-4 rounded-2xl shadow-lg">
+              <div className="flex items-center">
+                <svg className="w-6 h-6 mr-3 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                  <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
                 </svg>
-              </div>
-              <div className="ml-3">
-                <p className="text-sm text-red-800">{error}</p>
-              </div>
-              <div className="ml-auto pl-3">
+                <div className="flex-1">
+                  <p className="font-semibold text-sm">{error}</p>
+                </div>
                 <button
                   onClick={() => setError(null)}
-                  className="text-red-400 hover:text-red-600"
+                  className="ml-3 text-red-500 hover:text-red-700 transition-colors"
                 >
-                  <svg className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                  <svg className="h-5 w-5" fill="currentColor" viewBox="0 0 20 20">
                     <path fillRule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clipRule="evenodd" />
                   </svg>
                 </button>
@@ -184,8 +232,15 @@ const FileManagement: React.FC = () => {
 
         {/* Upload Form */}
         {showUploadForm && (
-          <div className="mb-8 bg-white rounded-lg shadow-md p-6">
-            <h2 className="text-xl font-semibold text-gray-900 mb-4">Upload New File</h2>
+          <div className="mb-8 bg-white rounded-2xl shadow-xl p-8 border border-gray-100">
+            <div className="flex items-center mb-6">
+              <div className="bg-gradient-to-r from-blue-100 to-purple-100 rounded-full w-10 h-10 flex items-center justify-center mr-3">
+                <svg className="h-5 w-5 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
+                </svg>
+              </div>
+              <h2 className="text-2xl font-bold text-gray-900">Upload New File</h2>
+            </div>
             <FileUploadComponent
               onUploadSuccess={handleUploadSuccess}
               onUploadError={handleUploadError}
@@ -194,9 +249,16 @@ const FileManagement: React.FC = () => {
         )}
 
         {/* Files List */}
-        <div className="bg-white rounded-lg shadow-md">
-          <div className="px-6 py-4 border-b border-gray-200">
-            <h2 className="text-lg font-medium text-gray-900">Your Files ({files.length})</h2>
+        <div className="bg-white rounded-2xl shadow-xl border border-gray-100">
+          <div className="px-8 py-6 border-b border-gray-200">
+            <div className="flex items-center">
+              <div className="bg-gradient-to-r from-blue-100 to-purple-100 rounded-full w-8 h-8 flex items-center justify-center mr-3">
+                <svg className="h-4 w-4 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
+                </svg>
+              </div>
+              <h2 className="text-xl font-bold text-gray-900">Your Files ({files.length})</h2>
+            </div>
           </div>
 
           {loading ? (
@@ -245,31 +307,51 @@ const FileManagement: React.FC = () => {
                           )}
                         </div>
                         <div className="flex items-center space-x-2 mt-2">
-                          <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getStatusColor(file.scanStatus)}`}>
+                          <span className={`inline-flex items-center px-3 py-1 rounded-xl text-xs font-semibold ${getStatusColor(file.scanStatus)}`}>
                             {file.scanStatus}
                           </span>
                           {file.verified && (
-                            <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                            <span className="inline-flex items-center px-3 py-1 rounded-xl text-xs font-semibold bg-gradient-to-r from-green-100 to-emerald-100 text-green-800 border border-green-200">
+                              <svg className="w-3 h-3 mr-1" fill="currentColor" viewBox="0 0 20 20">
+                                <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                              </svg>
                               Verified
                             </span>
                           )}
                         </div>
                       </div>
                     </div>
-                    <div className="flex items-center space-x-2">
+                    <div className="flex items-center space-x-3">
                       <button
                         onClick={() => handleDownloadFile(file)}
-                        className="text-blue-600 hover:text-blue-800 text-sm font-medium"
-                        disabled={!file.downloadUrl}
+                        className="inline-flex items-center px-4 py-2 bg-gradient-to-r from-blue-600 to-purple-600 text-white text-sm font-semibold rounded-xl hover:from-blue-700 hover:to-purple-700 transition-all duration-200 shadow-sm hover:shadow-md transform hover:-translate-y-0.5"
                       >
+                        <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 10v6m0 0l-3-3m3 3l3-3M3 17V7a2 2 0 012-2h6l2 2h6a2 2 0 012 2v10a2 2 0 01-2 2H5a2 2 0 01-2-2z" />
+                        </svg>
                         Download
                       </button>
                       <button
                         onClick={() => handleDeleteFile(file.id)}
                         disabled={deletingFile === file.id}
-                        className="text-red-600 hover:text-red-800 text-sm font-medium disabled:opacity-50"
+                        className="inline-flex items-center px-4 py-2 bg-gradient-to-r from-red-500 to-rose-600 text-white text-sm font-semibold rounded-xl hover:from-red-600 hover:to-rose-700 disabled:from-gray-400 disabled:to-gray-500 disabled:cursor-not-allowed transition-all duration-200 shadow-sm hover:shadow-md transform hover:-translate-y-0.5"
                       >
-                        {deletingFile === file.id ? 'Deleting...' : 'Delete'}
+                        {deletingFile === file.id ? (
+                          <>
+                            <svg className="animate-spin w-4 h-4 mr-1" fill="none" viewBox="0 0 24 24">
+                              <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                              <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                            </svg>
+                            Deleting...
+                          </>
+                        ) : (
+                          <>
+                            <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                            </svg>
+                            Delete
+                          </>
+                        )}
                       </button>
                     </div>
                   </div>

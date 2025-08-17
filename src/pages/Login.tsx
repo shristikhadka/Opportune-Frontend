@@ -100,42 +100,63 @@ const Login: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 flex flex-col justify-center py-12 sm:px-6 lg:px-8">
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50 flex flex-col justify-center py-12 sm:px-6 lg:px-8">
       <div className="sm:mx-auto sm:w-full sm:max-w-md">
-        <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-900">
-          Sign in to your account
+        {/* Logo and Header */}
+        <div className="text-center mb-8">
+          <h1 className="text-4xl font-bold bg-gradient-to-r from-blue-600 via-purple-600 to-indigo-600 bg-clip-text text-transparent mb-4">
+            Opportune
+          </h1>
+          <div className="w-16 h-1 bg-gradient-to-r from-blue-500 to-purple-500 mx-auto rounded-full mb-6"></div>
+        </div>
+
+        <h2 className="text-center text-3xl font-bold text-gray-900 mb-2">
+          Welcome Back
         </h2>
-        <p className="mt-2 text-center text-sm text-gray-600">
-          Or{' '}
+        <p className="text-center text-gray-600 mb-8">
+          Sign in to continue your career journey
+        </p>
+        <p className="text-center text-sm text-gray-500">
+          Don't have an account?{' '}
           <Link
             to="/register"
-            className="font-medium text-blue-600 hover:text-blue-500"
+            className="font-medium text-blue-600 hover:text-blue-700 transition-colors duration-200"
           >
-            create a new account
+            Create one now
           </Link>
         </p>
       </div>
 
       <div className="mt-8 sm:mx-auto sm:w-full sm:max-w-md">
-        <div className="bg-white py-8 px-4 shadow sm:rounded-lg sm:px-10">
+        <div className="bg-white py-8 px-4 shadow-xl sm:rounded-2xl sm:px-10 border border-gray-100">
           <form className="space-y-6" onSubmit={handleSubmit}>
             {successMessage && (
-              <div className="bg-green-50 border border-green-200 text-green-700 px-4 py-3 rounded-md">
-                {successMessage}
+              <div className="bg-gradient-to-r from-green-50 to-emerald-50 border border-green-200/60 text-green-700 px-4 py-3 rounded-xl shadow-sm">
+                <div className="flex items-center">
+                  <svg className="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                    <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                  </svg>
+                  {successMessage}
+                </div>
               </div>
             )}
             
             {loginError && (
-              <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-md">
-                {loginError}
+              <div className="bg-gradient-to-r from-red-50 to-rose-50 border border-red-200/60 text-red-700 px-4 py-3 rounded-xl shadow-sm">
+                <div className="flex items-center">
+                  <svg className="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                    <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
+                  </svg>
+                  {loginError}
+                </div>
               </div>
             )}
 
-            <div>
-              <label htmlFor="username" className="block text-sm font-medium text-gray-700">
+            <div className="space-y-1">
+              <label htmlFor="username" className="block text-sm font-semibold text-gray-800">
                 Username
               </label>
-              <div className="mt-1">
+              <div className="relative">
                 <input
                   id="username"
                   name="username"
@@ -144,22 +165,34 @@ const Login: React.FC = () => {
                   required
                   value={formData.username}
                   onChange={handleInputChange}
-                  className={`appearance-none block w-full px-3 py-2 border ${
-                    errors.username ? 'border-red-300' : 'border-gray-300'
-                  } placeholder-gray-400 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm rounded-md`}
+                  className={`appearance-none block w-full px-4 py-3 border-2 ${
+                    errors.username 
+                      ? 'border-red-300 focus:border-red-500' 
+                      : 'border-gray-200 focus:border-blue-500'
+                  } placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500/20 rounded-xl text-gray-900 transition-all duration-200`}
                   placeholder="Enter your username"
                 />
-                {errors.username && (
-                  <p className="mt-2 text-sm text-red-600">{errors.username}</p>
-                )}
+                <div className="absolute inset-y-0 right-0 flex items-center pr-3">
+                  <svg className="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                  </svg>
+                </div>
               </div>
+              {errors.username && (
+                <p className="text-sm text-red-600 flex items-center mt-1">
+                  <svg className="w-4 h-4 mr-1" fill="currentColor" viewBox="0 0 20 20">
+                    <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
+                  </svg>
+                  {errors.username}
+                </p>
+              )}
             </div>
 
-            <div>
-              <label htmlFor="password" className="block text-sm font-medium text-gray-700">
+            <div className="space-y-1">
+              <label htmlFor="password" className="block text-sm font-semibold text-gray-800">
                 Password
               </label>
-              <div className="mt-1">
+              <div className="relative">
                 <input
                   id="password"
                   name="password"
@@ -168,58 +201,89 @@ const Login: React.FC = () => {
                   required
                   value={formData.password}
                   onChange={handleInputChange}
-                  className={`appearance-none block w-full px-3 py-2 border ${
-                    errors.password ? 'border-red-300' : 'border-gray-300'
-                  } placeholder-gray-400 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm rounded-md`}
+                  className={`appearance-none block w-full px-4 py-3 border-2 ${
+                    errors.password 
+                      ? 'border-red-300 focus:border-red-500' 
+                      : 'border-gray-200 focus:border-blue-500'
+                  } placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500/20 rounded-xl text-gray-900 transition-all duration-200`}
                   placeholder="Enter your password"
                 />
-                {errors.password && (
-                  <p className="mt-2 text-sm text-red-600">{errors.password}</p>
-                )}
+                <div className="absolute inset-y-0 right-0 flex items-center pr-3">
+                  <svg className="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+                  </svg>
+                </div>
               </div>
+              {errors.password && (
+                <p className="text-sm text-red-600 flex items-center mt-1">
+                  <svg className="w-4 h-4 mr-1" fill="currentColor" viewBox="0 0 20 20">
+                    <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
+                  </svg>
+                  {errors.password}
+                </p>
+              )}
             </div>
 
-            <div>
+            <div className="pt-2">
               <button
                 type="submit"
                 disabled={isLoading}
-                className={`w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white ${
+                className={`group relative w-full flex justify-center py-3 px-4 border border-transparent rounded-xl text-base font-semibold text-white transition-all duration-200 transform focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 ${
                   isLoading
-                    ? 'bg-blue-400 cursor-not-allowed'
-                    : 'bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500'
+                    ? 'bg-gray-400 cursor-not-allowed'
+                    : 'bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 hover:-translate-y-0.5 shadow-lg hover:shadow-xl'
                 }`}
               >
-                {isLoading ? (
-                  <div className="flex items-center">
-                    <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                <span className="absolute left-0 inset-y-0 flex items-center pl-3">
+                  {isLoading ? (
+                    <svg className="animate-spin h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
                       <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
                       <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                     </svg>
-                    Signing in...
-                  </div>
-                ) : (
-                  'Sign in'
-                )}
+                  ) : (
+                    <svg className="h-5 w-5 text-white/80 group-hover:text-white transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 16l-4-4m0 0l4-4m-4 4h14m-5 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h7a3 3 0 013 3v1" />
+                    </svg>
+                  )}
+                </span>
+                {isLoading ? 'Signing you in...' : 'Sign In to Opportune'}
               </button>
             </div>
           </form>
 
-          <div className="mt-6">
+          <div className="mt-8">
             <div className="relative">
               <div className="absolute inset-0 flex items-center">
-                <div className="w-full border-t border-gray-300" />
+                <div className="w-full border-t border-gray-200" />
               </div>
               <div className="relative flex justify-center text-sm">
-                <span className="px-2 bg-white text-gray-500">Demo Accounts</span>
+                <span className="px-4 bg-white/80 text-gray-600 font-medium">Try Demo Accounts</span>
               </div>
             </div>
 
-            <div className="mt-6 grid grid-cols-1 gap-3">
-              <div className="text-xs text-gray-500 space-y-1">
-                <p><strong>Admin User:</strong> admin_test / test123</p>
-                <p><strong>HR Manager:</strong> hr_test / test123</p>
-                <p><strong>Regular User:</strong> newuser / password1234</p>
-                <p><strong>Regular User:</strong> regular_user / user123</p>
+            <div className="mt-6 bg-gradient-to-r from-gray-50 to-blue-50/50 rounded-xl p-4 border border-gray-100">
+              <div className="text-sm space-y-3">
+                <div className="flex items-center justify-between p-2 bg-white/70 rounded-lg">
+                  <div>
+                    <span className="font-semibold text-purple-700">Admin:</span>
+                    <span className="text-gray-700 ml-2">admin_test / test123</span>
+                  </div>
+                  <span className="text-xs bg-purple-100 text-purple-700 px-2 py-1 rounded-full">Full Access</span>
+                </div>
+                <div className="flex items-center justify-between p-2 bg-white/70 rounded-lg">
+                  <div>
+                    <span className="font-semibold text-blue-700">HR Manager:</span>
+                    <span className="text-gray-700 ml-2">hr_test / test123</span>
+                  </div>
+                  <span className="text-xs bg-blue-100 text-blue-700 px-2 py-1 rounded-full">Post Jobs</span>
+                </div>
+                <div className="flex items-center justify-between p-2 bg-white/70 rounded-lg">
+                  <div>
+                    <span className="font-semibold text-green-700">Job Seeker:</span>
+                    <span className="text-gray-700 ml-2">newuser / password1234</span>
+                  </div>
+                  <span className="text-xs bg-green-100 text-green-700 px-2 py-1 rounded-full">Apply Jobs</span>
+                </div>
               </div>
             </div>
           </div>
