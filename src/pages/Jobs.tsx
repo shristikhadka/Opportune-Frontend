@@ -1,11 +1,14 @@
 import React, { useEffect, useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
 import { useAuth } from '../hooks/useAuth';
+import { useSavedJobs } from '../hooks/useSavedJobs';
 import { jobsAPI } from '../services/api';
 import { JobPost, JobSearchRequest } from '../types';
 
 const Jobs: React.FC = () => {
   const { user } = useAuth();
+  const { toggleSaveJob, isJobSaved, getSavedJobsFromList, savedJobsCount } = useSavedJobs();
+  const location = useLocation();
   const [jobs, setJobs] = useState<JobPost[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -14,6 +17,7 @@ const Jobs: React.FC = () => {
   const [companyFilter, setCompanyFilter] = useState('');
   const [experienceFilter, setExperienceFilter] = useState('');
   const [salaryFilter, setSalaryFilter] = useState('');
+  const [showSavedOnly, setShowSavedOnly] = useState(false);
   const [sortBy, setSortBy] = useState('postDate');
   const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('desc');
   
@@ -24,6 +28,15 @@ const Jobs: React.FC = () => {
   const [pageSize] = useState(10);
   
 
+
+  // Handle URL parameters
+  useEffect(() => {
+    const urlParams = new URLSearchParams(location.search);
+    const savedParam = urlParams.get('saved');
+    if (savedParam === 'true') {
+      setShowSavedOnly(true);
+    }
+  }, [location.search]);
 
   // Fetch jobs on component mount
   useEffect(() => {
@@ -97,10 +110,19 @@ const Jobs: React.FC = () => {
     setCompanyFilter('');
     setExperienceFilter('');
     setSalaryFilter('');
+    setShowSavedOnly(false);
     setSortBy('postDate');
     setSortOrder('desc');
     setCurrentPage(0);
     fetchJobs();
+  };
+
+  // Get filtered jobs based on saved jobs filter
+  const getFilteredJobs = () => {
+    if (showSavedOnly) {
+      return getSavedJobsFromList(jobs);
+    }
+    return jobs;
   };
 
   const handlePageChange = (newPage: number) => {
@@ -275,6 +297,22 @@ const Jobs: React.FC = () => {
         {/* Sort and Action Buttons */}
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 pt-4 border-t border-gray-200">
           <div className="flex items-center gap-4">
+            {/* Saved Jobs Filter */}
+            {user && (
+              <button
+                onClick={() => setShowSavedOnly(!showSavedOnly)}
+                className={`flex items-center gap-2 px-4 py-2 text-sm rounded-xl transition-all duration-200 font-medium ${
+                  showSavedOnly
+                    ? 'bg-gradient-to-r from-pink-500 to-red-500 text-white shadow-lg'
+                    : 'bg-gradient-to-r from-pink-100 to-red-100 text-pink-700 hover:from-pink-200 hover:to-red-200'
+                }`}
+              >
+                <svg className="w-4 h-4" fill={showSavedOnly ? "currentColor" : "none"} stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
+                </svg>
+                {showSavedOnly ? 'Show All Jobs' : `Saved Jobs (${savedJobsCount})`}
+              </button>
+            )}
             <div className="flex items-center gap-3">
               <label htmlFor="sortBy" className="text-sm font-semibold text-gray-800">
                 🔄 Sort by:
@@ -355,15 +393,22 @@ const Jobs: React.FC = () => {
       )}
 
       {/* Jobs Grid */}
-      {jobs.length === 0 && !loading ? (
+      {getFilteredJobs().length === 0 && !loading ? (
         <div className="text-center py-16">
           <div className="bg-gradient-to-r from-blue-100 to-purple-100 rounded-full w-20 h-20 flex items-center justify-center mx-auto mb-6">
             <svg className="h-10 w-10 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
             </svg>
           </div>
-          <h3 className="text-2xl font-bold text-gray-900 mb-3">No opportunities found</h3>
-          <p className="text-gray-600 text-lg mb-6 max-w-md mx-auto">Try adjusting your search criteria or check back later for new amazing opportunities.</p>
+          <h3 className="text-2xl font-bold text-gray-900 mb-3">
+            {showSavedOnly ? 'No saved jobs found' : 'No opportunities found'}
+          </h3>
+          <p className="text-gray-600 text-lg mb-6 max-w-md mx-auto">
+            {showSavedOnly 
+              ? "You haven't saved any jobs yet. Click the heart icon on jobs you're interested in to save them!"
+              : "Try adjusting your search criteria or check back later for new amazing opportunities."
+            }
+          </p>
           <button
             onClick={clearFilters}
             className="inline-flex items-center px-6 py-3 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-xl hover:from-blue-700 hover:to-purple-700 transition-all duration-200 font-semibold shadow-lg hover:shadow-xl transform hover:-translate-y-0.5"
@@ -376,7 +421,7 @@ const Jobs: React.FC = () => {
         </div>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-          {jobs.map((job) => (
+          {getFilteredJobs().map((job) => (
             <div key={job.postId} className="group bg-white rounded-2xl shadow-xl hover:shadow-2xl transition-all duration-300 overflow-hidden border border-gray-100 hover:-translate-y-1">
               <div className="p-6">
                 {/* Job Header */}
@@ -473,8 +518,21 @@ const Jobs: React.FC = () => {
                     View Details
                   </Link>
                   {user && (
-                    <button className="px-4 py-3 text-gray-500 hover:text-red-500 transition-colors duration-200 bg-gray-100 hover:bg-red-50 rounded-xl">
-                      <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <button 
+                      onClick={() => toggleSaveJob(job.postId)}
+                      className={`px-4 py-3 transition-all duration-200 rounded-xl transform hover:scale-105 ${
+                        isJobSaved(job.postId)
+                          ? 'text-red-500 bg-red-50 hover:bg-red-100 shadow-lg'
+                          : 'text-gray-400 hover:text-red-500 bg-gray-100 hover:bg-red-50'
+                      }`}
+                      title={isJobSaved(job.postId) ? 'Remove from saved jobs' : 'Save this job'}
+                    >
+                      <svg 
+                        className="w-5 h-5" 
+                        fill={isJobSaved(job.postId) ? "currentColor" : "none"} 
+                        stroke="currentColor" 
+                        viewBox="0 0 24 24"
+                      >
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
                       </svg>
                     </button>
@@ -557,15 +615,18 @@ const Jobs: React.FC = () => {
       )}
 
       {/* Results Summary */}
-      {totalElements > 0 && (
+      {getFilteredJobs().length > 0 && (
         <div className="mt-6 text-center">
           <div className="inline-flex items-center px-4 py-2 bg-gradient-to-r from-blue-50 to-purple-50 rounded-xl border border-blue-100">
             <svg className="w-4 h-4 text-blue-600 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
             </svg>
             <span className="text-sm font-semibold text-gray-700">
-              Showing {jobs.length} of {totalElements} opportunities
-              {totalPages > 1 && ` • Page ${currentPage + 1} of ${totalPages}`}
+              {showSavedOnly
+                ? `Showing ${getFilteredJobs().length} saved ${getFilteredJobs().length === 1 ? 'job' : 'jobs'}`
+                : `Showing ${jobs.length} of ${totalElements || jobs.length} opportunities`
+              }
+              {!showSavedOnly && totalPages > 1 && ` • Page ${currentPage + 1} of ${totalPages}`}
             </span>
           </div>
         </div>
