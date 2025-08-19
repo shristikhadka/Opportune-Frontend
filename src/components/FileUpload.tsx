@@ -8,6 +8,7 @@ interface FileUploadProps {
   acceptedTypes?: string[];
   maxSize?: number; // in bytes
   className?: string;
+  showDescription?: boolean;
 }
 
 const FileUploadComponent: React.FC<FileUploadProps> = ({
@@ -15,7 +16,8 @@ const FileUploadComponent: React.FC<FileUploadProps> = ({
   onUploadError,
   acceptedTypes = ['.pdf', '.doc', '.docx'],
   maxSize = 10 * 1024 * 1024, // 10MB
-  className = ''
+  className = '',
+  showDescription = true
 }) => {
   const [isDragOver, setIsDragOver] = useState(false);
   const [isUploading, setIsUploading] = useState(false);
@@ -74,7 +76,24 @@ const FileUploadComponent: React.FC<FileUploadProps> = ({
     } catch (error: any) {
       setUploadProgress(0);
       setIsUploading(false);
-      const errorMessage = error.response?.data?.message || 'Upload failed. Please try again.';
+      
+      // Better error handling based on error type
+      let errorMessage = 'Upload failed. Please try again.';
+      
+      if (error.response?.status === 401 || error.response?.status === 403) {
+        errorMessage = 'Please sign in to upload your resume.';
+      } else if (error.response?.status === 413) {
+        errorMessage = 'File is too large. Please upload a smaller file.';
+      } else if (error.response?.status === 415) {
+        errorMessage = 'File type not supported. Please upload a PDF, DOC, or DOCX file.';
+      } else if (error.response?.status >= 500) {
+        errorMessage = 'Our servers are temporarily unavailable. Please try again in a moment.';
+      } else if (error.message?.includes('Network')) {
+        errorMessage = 'Please check your internet connection and try again.';
+      } else if (error.response?.data?.message) {
+        errorMessage = error.response.data.message;
+      }
+      
       onUploadError(errorMessage);
     }
   };
@@ -180,7 +199,7 @@ const FileUploadComponent: React.FC<FileUploadProps> = ({
       </div>
 
       {/* Description Input */}
-      {!isUploading && (
+      {!isUploading && showDescription && (
         <div className="mt-4">
           <label htmlFor="description" className="block text-sm font-medium text-gray-700 mb-1">
             Description (optional)

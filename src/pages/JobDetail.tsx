@@ -361,6 +361,7 @@ const JobDetail: React.FC = () => {
                         onUploadError={(error) => {
                           alert(error);
                         }}
+                        showDescription={false}
                       />
                     </div>
                   )}

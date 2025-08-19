@@ -244,6 +244,7 @@ const FileManagement: React.FC = () => {
             <FileUploadComponent
               onUploadSuccess={handleUploadSuccess}
               onUploadError={handleUploadError}
+              showDescription={false}
             />
           </div>
         )}

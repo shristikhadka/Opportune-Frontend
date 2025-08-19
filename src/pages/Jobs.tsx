@@ -62,11 +62,6 @@ const Jobs: React.FC = () => {
       setLoading(true);
       setError(null);
       
-      // Check if user is logged in
-      const token = localStorage.getItem('token');
-      console.log('🔑 Token exists:', !!token);
-      console.log('👤 User logged in:', !!user);
-      
       const searchRequest: JobSearchRequest = {
         query: searchTerm || undefined,
         location: locationFilter || undefined,
@@ -77,7 +72,7 @@ const Jobs: React.FC = () => {
         sortOrder,
         page: page,
         size: pageSize,
-        useFullTextSearch: !!searchTerm // Enable full-text search when search term is provided
+        useFullTextSearch: !!searchTerm
       };
 
       console.log('🔍 Search request:', searchRequest);
@@ -96,9 +91,21 @@ const Jobs: React.FC = () => {
         setTotalElements(response.data.length || 0);
         setCurrentPage(0);
       }
-    } catch (err) {
+    } catch (err: any) {
       console.error('❌ Search error:', err);
-      setError('Search failed. Please try again.');
+      
+      // Better error handling based on error type
+      if (err.response?.status === 401) {
+        setError('Please sign in to search jobs with advanced filters.');
+      } else if (err.response?.status === 403) {
+        setError('Please sign in to access advanced search features.');
+      } else if (err.response?.status >= 500) {
+        setError('Our servers are temporarily unavailable. Please try again in a moment.');
+      } else if (err.message?.includes('Network')) {
+        setError('Please check your internet connection and try again.');
+      } else {
+        setError('Unable to search jobs right now. Please try again.');
+      }
     } finally {
       setLoading(false);
     }
@@ -196,7 +203,7 @@ const Jobs: React.FC = () => {
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
                 placeholder="Job title, skills, or keywords..."
-                className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all duration-200"
+                className="w-full pl-4 pr-10 py-3 border-2 border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all duration-200"
               />
               <div className="absolute inset-y-0 right-0 flex items-center pr-3">
                 <svg className="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -377,15 +384,37 @@ const Jobs: React.FC = () => {
 
       {/* Error Message */}
       {error && (
-        <div className="mb-8 mx-auto max-w-md">
-          <div className="bg-gradient-to-r from-red-50 to-rose-50 border border-red-200/60 text-red-700 px-6 py-4 rounded-2xl shadow-lg">
-            <div className="flex items-center">
-              <svg className="w-6 h-6 mr-3 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
-                <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
-              </svg>
-              <div>
-                <p className="font-semibold">Oops! Something went wrong</p>
-                <p className="text-sm mt-1">{error}</p>
+        <div className="mb-8 mx-auto max-w-2xl">
+          <div className={`px-6 py-4 rounded-2xl shadow-lg border ${
+            error.includes('sign in') || error.includes('Please sign in')
+              ? 'bg-gradient-to-r from-blue-50 to-indigo-50 border-blue-200/60 text-blue-800'
+              : 'bg-gradient-to-r from-red-50 to-rose-50 border-red-200/60 text-red-700'
+          }`}>
+            <div className="flex items-start">
+              {error.includes('sign in') || error.includes('Please sign in') ? (
+                <svg className="w-6 h-6 mr-3 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+              ) : (
+                <svg className="w-6 h-6 mr-3 flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
+                  <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
+                </svg>
+              )}
+              <div className="flex-1">
+                <p className="font-semibold text-base">{error}</p>
+                {(error.includes('sign in') || error.includes('Please sign in')) && (
+                  <div className="mt-3">
+                    <Link 
+                      to="/login" 
+                      className="inline-flex items-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors duration-200 text-sm font-medium"
+                    >
+                      <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 16l-4-4m0 0l4-4m-4 4h14m-5 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h7a3 3 0 013 3v1" />
+                      </svg>
+                      Sign In Now
+                    </Link>
+                  </div>
+                )}
               </div>
             </div>
           </div>
