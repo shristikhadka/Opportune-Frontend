@@ -291,7 +291,7 @@ const Admin: React.FC = () => {
 
         {/* Navigation Tabs */}
         <div className="bg-white rounded-2xl shadow-xl p-2 mb-8 border border-gray-100">
-          <nav className="grid grid-cols-2 lg:grid-cols-4 gap-2">
+          <nav className="grid grid-cols-2 lg:grid-cols-5 gap-2">
             <button
               onClick={() => setActiveTab('overview')}
               className={`flex items-center justify-center gap-2 py-3 px-4 rounded-xl font-semibold text-sm transition-all duration-200 ${
@@ -326,17 +326,6 @@ const Admin: React.FC = () => {
               Analytics
             </button>
             <button
-              onClick={() => setActiveTab('invites')}
-              className={`flex items-center justify-center gap-2 py-3 px-4 rounded-xl font-semibold text-sm transition-all duration-200 ${
-                activeTab === 'invites'
-                  ? 'bg-gradient-to-r from-blue-600 to-purple-600 text-white shadow-lg transform scale-105'
-                  : 'text-gray-600 hover:text-gray-800 hover:bg-gray-50'
-              }`}
-            >
-              <span>✉️</span>
-              Invites ({invites.length})
-            </button>
-            <button
               onClick={() => setActiveTab('access-requests')}
               className={`flex items-center justify-center gap-2 py-3 px-4 rounded-xl font-semibold text-sm transition-all duration-200 ${
                 activeTab === 'access-requests'
@@ -346,6 +335,17 @@ const Admin: React.FC = () => {
             >
               <span>🔐</span>
               Access Requests ({accessRequests.filter(req => req.status === 'PENDING').length})
+            </button>
+            <button
+              onClick={() => setActiveTab('invites')}
+              className={`flex items-center justify-center gap-2 py-3 px-4 rounded-xl font-semibold text-sm transition-all duration-200 ${
+                activeTab === 'invites'
+                  ? 'bg-gradient-to-r from-blue-600 to-purple-600 text-white shadow-lg transform scale-105'
+                  : 'text-gray-600 hover:text-gray-800 hover:bg-gray-50'
+              }`}
+            >
+              <span>✉️</span>
+              Invites ({invites.length})
             </button>
           </nav>
         </div>
