@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useAuth } from '../hooks/useAuth';
-import { adminAPI, inviteAPI } from '../services/api';
-import { JobAnalytics, User, Invite, CreateInviteRequest } from '../types';
+import { adminAPI, inviteAPI, accessRequestAPI } from '../services/api';
+import { JobAnalytics, User, Invite, CreateInviteRequest, AccessRequest } from '../types';
 
 const Admin: React.FC = () => {
   const { user } = useAuth();
@@ -9,7 +9,7 @@ const Admin: React.FC = () => {
   const [analytics, setAnalytics] = useState<JobAnalytics | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [activeTab, setActiveTab] = useState<'overview' | 'users' | 'analytics' | 'invites'>('overview');
+  const [activeTab, setActiveTab] = useState<'overview' | 'users' | 'analytics' | 'invites' | 'access-requests'>('overview');
   const [invites, setInvites] = useState<Invite[]>([]);
   const [showCreateInviteForm, setShowCreateInviteForm] = useState(false);
   const [inviteFormData, setInviteFormData] = useState<CreateInviteRequest>({
@@ -20,6 +20,8 @@ const Admin: React.FC = () => {
   });
   const [inviteLoading, setInviteLoading] = useState(false);
   const [userLoading, setUserLoading] = useState(false);
+  const [accessRequests, setAccessRequests] = useState<AccessRequest[]>([]);
+  const [accessRequestLoading, setAccessRequestLoading] = useState(false);
 
   useEffect(() => {
     if (user?.role === 'ADMIN') {
@@ -32,16 +34,18 @@ const Admin: React.FC = () => {
       setLoading(true);
       setError(null);
       
-      // Fetch users, analytics, and invites in parallel
-      const [usersResponse, analyticsResponse, invitesResponse] = await Promise.all([
+      // Fetch users, analytics, invites, and access requests in parallel
+      const [usersResponse, analyticsResponse, invitesResponse, accessRequestsResponse] = await Promise.all([
         adminAPI.getAllUsers(),
         adminAPI.getJobAnalytics(),
-        inviteAPI.getAllPendingInvites()
+        inviteAPI.getAllPendingInvites(),
+        accessRequestAPI.getAllRequests()
       ]);
       
       setUsers(usersResponse.data);
       setAnalytics(analyticsResponse.data);
       setInvites(invitesResponse.data);
+      setAccessRequests(accessRequestsResponse.data.data || []);
     } catch (err) {
       console.error('Error fetching admin data:', err);
       setError('Failed to load admin data. Please try again.');
@@ -142,6 +146,77 @@ const Admin: React.FC = () => {
       alert('Failed to revoke invite. Please try again.');
     } finally {
       setInviteLoading(false);
+    }
+  };
+
+  const handleApproveAccessRequest = async (requestId: number) => {
+    try {
+      setAccessRequestLoading(true);
+      await accessRequestAPI.approveRequest(requestId);
+      // Refresh access requests and invites lists
+      const [accessRequestsResponse, invitesResponse] = await Promise.all([
+        accessRequestAPI.getAllRequests(),
+        inviteAPI.getAllPendingInvites()
+      ]);
+      setAccessRequests(accessRequestsResponse.data.data || []);
+      setInvites(invitesResponse.data);
+      alert('Access request approved and invite created successfully!');
+    } catch (err: any) {
+      console.error('Error approving access request:', err);
+      alert(err.response?.data?.message || 'Failed to approve access request. Please try again.');
+    } finally {
+      setAccessRequestLoading(false);
+    }
+  };
+
+  const handleDenyAccessRequest = async (requestId: number) => {
+    if (!window.confirm('Are you sure you want to deny this access request?')) {
+      return;
+    }
+
+    try {
+      setAccessRequestLoading(true);
+      await accessRequestAPI.denyRequest(requestId);
+      // Refresh access requests list
+      const response = await accessRequestAPI.getAllRequests();
+      setAccessRequests(response.data.data || []);
+      alert('Access request denied successfully!');
+    } catch (err: any) {
+      console.error('Error denying access request:', err);
+      alert(err.response?.data?.message || 'Failed to deny access request. Please try again.');
+    } finally {
+      setAccessRequestLoading(false);
+    }
+  };
+
+  const handleDeleteAccessRequest = async (requestId: number) => {
+    if (!window.confirm('Are you sure you want to delete this access request?')) {
+      return;
+    }
+
+    try {
+      setAccessRequestLoading(true);
+      await accessRequestAPI.deleteRequest(requestId);
+      setAccessRequests(accessRequests.filter(req => req.id !== requestId));
+      alert('Access request deleted successfully!');
+    } catch (err: any) {
+      console.error('Error deleting access request:', err);
+      alert(err.response?.data?.message || 'Failed to delete access request. Please try again.');
+    } finally {
+      setAccessRequestLoading(false);
+    }
+  };
+
+  const getRequestStatusColor = (status: string) => {
+    switch (status) {
+      case 'PENDING':
+        return 'bg-gradient-to-r from-yellow-100 to-orange-100 text-yellow-800 border-yellow-200';
+      case 'APPROVED':
+        return 'bg-gradient-to-r from-green-100 to-emerald-100 text-green-800 border-green-200';
+      case 'DENIED':
+        return 'bg-gradient-to-r from-red-100 to-rose-100 text-red-800 border-red-200';
+      default:
+        return 'bg-gradient-to-r from-gray-100 to-gray-200 text-gray-800 border-gray-200';
     }
   };
 
@@ -260,6 +335,17 @@ const Admin: React.FC = () => {
             >
               <span>✉️</span>
               Invites ({invites.length})
+            </button>
+            <button
+              onClick={() => setActiveTab('access-requests')}
+              className={`flex items-center justify-center gap-2 py-3 px-4 rounded-xl font-semibold text-sm transition-all duration-200 ${
+                activeTab === 'access-requests'
+                  ? 'bg-gradient-to-r from-blue-600 to-purple-600 text-white shadow-lg transform scale-105'
+                  : 'text-gray-600 hover:text-gray-800 hover:bg-gray-50'
+              }`}
+            >
+              <span>🔐</span>
+              Access Requests ({accessRequests.filter(req => req.status === 'PENDING').length})
             </button>
           </nav>
         </div>
@@ -707,6 +793,178 @@ const Admin: React.FC = () => {
                             >
                               Revoke
                             </button>
+                          </div>
+                        </td>
+                      </tr>
+                    ))
+                  )}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Access Requests Tab */}
+      {activeTab === 'access-requests' && (
+        <div className="space-y-6">
+          <div className="bg-white rounded-2xl shadow-xl p-8 border border-gray-100">
+            <div className="flex justify-between items-center mb-8">
+              <div>
+                <h3 className="text-2xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
+                  Access Requests
+                </h3>
+                <p className="text-gray-600 mt-1">
+                  Review and manage HR and Admin access requests
+                </p>
+              </div>
+              <button
+                onClick={fetchData}
+                disabled={accessRequestLoading}
+                className="px-6 py-3 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-xl hover:from-blue-700 hover:to-purple-700 disabled:opacity-50 transition-all duration-200 font-semibold shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 flex items-center"
+              >
+                {accessRequestLoading ? (
+                  <>
+                    <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
+                    Loading...
+                  </>
+                ) : (
+                  <>
+                    <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                    </svg>
+                    Refresh
+                  </>
+                )}
+              </button>
+            </div>
+
+            {/* Access Requests Table */}
+            <div className="overflow-x-auto">
+              <table className="min-w-full divide-y divide-gray-200">
+                <thead className="bg-gradient-to-r from-gray-50 to-gray-100">
+                  <tr>
+                    <th className="px-6 py-4 text-left text-xs font-bold text-gray-600 uppercase tracking-wider">
+                      Applicant
+                    </th>
+                    <th className="px-6 py-4 text-left text-xs font-bold text-gray-600 uppercase tracking-wider">
+                      Company
+                    </th>
+                    <th className="px-6 py-4 text-left text-xs font-bold text-gray-600 uppercase tracking-wider">
+                      Role
+                    </th>
+                    <th className="px-6 py-4 text-left text-xs font-bold text-gray-600 uppercase tracking-wider">
+                      Status
+                    </th>
+                    <th className="px-6 py-4 text-left text-xs font-bold text-gray-600 uppercase tracking-wider">
+                      Created
+                    </th>
+                    <th className="px-6 py-4 text-left text-xs font-bold text-gray-600 uppercase tracking-wider">
+                      Actions
+                    </th>
+                  </tr>
+                </thead>
+                <tbody className="bg-white divide-y divide-gray-200">
+                  {accessRequests.length === 0 ? (
+                    <tr>
+                      <td colSpan={6} className="px-6 py-12 text-center">
+                        <div className="bg-gradient-to-r from-gray-50 to-gray-100 rounded-xl p-8">
+                          <svg className="mx-auto h-12 w-12 text-gray-400 mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4" />
+                          </svg>
+                          <p className="text-gray-500 font-medium">No access requests found</p>
+                          <p className="text-sm text-gray-400 mt-1">New requests will appear here</p>
+                        </div>
+                      </td>
+                    </tr>
+                  ) : (
+                    accessRequests.map((request) => (
+                      <tr key={request.id} className="hover:bg-gradient-to-r hover:from-blue-50 hover:to-purple-50 transition-all duration-200">
+                        <td className="px-6 py-4 whitespace-nowrap">
+                          <div className="flex items-center">
+                            <div className="flex-shrink-0 h-12 w-12">
+                              <div className="h-12 w-12 bg-gradient-to-r from-blue-500 to-purple-500 rounded-xl flex items-center justify-center shadow-lg">
+                                <span className="text-white font-bold text-sm">
+                                  {request.firstName.charAt(0)}{request.lastName.charAt(0)}
+                                </span>
+                              </div>
+                            </div>
+                            <div className="ml-4">
+                              <div className="text-sm font-bold text-gray-900">
+                                {request.firstName} {request.lastName}
+                              </div>
+                              <div className="text-sm text-gray-500 font-medium">{request.email}</div>
+                            </div>
+                          </div>
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap">
+                          <div className="text-sm font-semibold text-gray-900">{request.companyName}</div>
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap">
+                          <span className={`inline-flex items-center px-3 py-1 rounded-xl text-xs font-bold border ${getRoleColor(request.requestedRole)}`}>
+                            {request.requestedRole}
+                          </span>
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap">
+                          <span className={`inline-flex items-center px-3 py-1 rounded-xl text-xs font-bold border ${getRequestStatusColor(request.status)}`}>
+                            {request.status}
+                          </span>
+                          {request.status !== 'PENDING' && request.reviewedBy && (
+                            <div className="text-xs text-gray-500 mt-1">
+                              by {request.reviewedBy}
+                            </div>
+                          )}
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 font-medium">
+                          {formatDate(request.createdAt)}
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                          <div className="flex items-center space-x-3">
+                            {request.status === 'PENDING' && (
+                              <>
+                                <button
+                                  onClick={() => handleApproveAccessRequest(request.id)}
+                                  disabled={accessRequestLoading}
+                                  className="inline-flex items-center px-3 py-2 bg-gradient-to-r from-green-600 to-emerald-600 text-white rounded-lg hover:from-green-700 hover:to-emerald-700 disabled:opacity-50 transition-all duration-200 font-semibold text-xs shadow-lg hover:shadow-xl transform hover:-translate-y-0.5"
+                                >
+                                  <svg className="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                                  </svg>
+                                  Approve
+                                </button>
+                                <button
+                                  onClick={() => handleDenyAccessRequest(request.id)}
+                                  disabled={accessRequestLoading}
+                                  className="inline-flex items-center px-3 py-2 bg-gradient-to-r from-red-600 to-rose-600 text-white rounded-lg hover:from-red-700 hover:to-rose-700 disabled:opacity-50 transition-all duration-200 font-semibold text-xs shadow-lg hover:shadow-xl transform hover:-translate-y-0.5"
+                                >
+                                  <svg className="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                                  </svg>
+                                  Deny
+                                </button>
+                              </>
+                            )}
+                            <button
+                              onClick={() => handleDeleteAccessRequest(request.id)}
+                              disabled={accessRequestLoading}
+                              className="inline-flex items-center px-3 py-2 bg-gradient-to-r from-gray-600 to-gray-700 text-white rounded-lg hover:from-gray-700 hover:to-gray-800 disabled:opacity-50 transition-all duration-200 font-semibold text-xs shadow-lg hover:shadow-xl transform hover:-translate-y-0.5"
+                            >
+                              <svg className="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                              </svg>
+                              Delete
+                            </button>
+                            {request.message && (
+                              <button
+                                onClick={() => alert(`Message: ${request.message}`)}
+                                className="inline-flex items-center px-3 py-2 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-lg hover:from-blue-700 hover:to-purple-700 transition-all duration-200 font-semibold text-xs shadow-lg hover:shadow-xl transform hover:-translate-y-0.5"
+                              >
+                                <svg className="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
+                                </svg>
+                                Message
+                              </button>
+                            )}
                           </div>
                         </td>
                       </tr>

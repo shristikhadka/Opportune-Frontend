@@ -159,3 +159,28 @@ export interface AcceptInviteRequest {
   lastName: string;
   phoneNumber?: string;
 }
+
+// Access Request related types
+export interface AccessRequest {
+  id: number;
+  firstName: string;
+  lastName: string;
+  email: string;
+  companyName: string;
+  requestedRole: 'HR' | 'ADMIN';
+  message?: string;
+  status: 'PENDING' | 'APPROVED' | 'DENIED';
+  createdAt: string;
+  updatedAt: string;
+  reviewedBy?: string;
+  reviewedAt?: string;
+}
+
+export interface CreateAccessRequestRequest {
+  firstName: string;
+  lastName: string;
+  email: string;
+  companyName: string;
+  requestedRole: 'HR' | 'ADMIN';
+  message?: string;
+}

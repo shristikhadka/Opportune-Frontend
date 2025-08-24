@@ -17,6 +17,7 @@ const HRDashboard = React.lazy(() => import('./pages/HRDashboard'));
 const FileManagement = React.lazy(() => import('./pages/FileManagement'));
 const UserProfile = React.lazy(() => import('./pages/UserProfile'));
 const InviteAcceptance = React.lazy(() => import('./pages/InviteAcceptance'));
+const RequestAccess = React.lazy(() => import('./pages/RequestAccess'));
 
 function App() {
   return (
@@ -39,6 +40,7 @@ function App() {
                 <Route path="/admin" element={<Admin />} />
                 <Route path="/hr-dashboard" element={<HRDashboard />} />
                 <Route path="/invite/:token" element={<InviteAcceptance />} />
+                <Route path="/request-access" element={<RequestAccess />} />
               </Routes>
             </React.Suspense>
           </main>

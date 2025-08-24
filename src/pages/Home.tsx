@@ -46,6 +46,14 @@ const Home: React.FC = () => {
                   <div className="absolute inset-0 bg-gradient-to-r from-purple-700 to-purple-800 transform scale-x-0 group-hover:scale-x-100 transition-transform duration-300 origin-left"></div>
                 </Link>
               )}
+              
+              <Link
+                to="/request-access"
+                className="group relative px-8 py-4 bg-gradient-to-r from-green-600 to-green-700 text-white rounded-full text-lg font-semibold shadow-lg hover:shadow-xl transform hover:-translate-y-1 transition-all duration-300 overflow-hidden"
+              >
+                <span className="relative z-10">🏢 Hire Talent</span>
+                <div className="absolute inset-0 bg-gradient-to-r from-green-700 to-green-800 transform scale-x-0 group-hover:scale-x-100 transition-transform duration-300 origin-left"></div>
+              </Link>
             </div>
           </div>
         </div>

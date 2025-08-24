@@ -155,4 +155,18 @@ export const fileUploadAPI = {
   getFileByIdForHR: (fileId: number) => api.get(`/files/hr/${fileId}`),
 };
 
+// Access Request API endpoints
+export const accessRequestAPI = {
+  // Public endpoint for creating requests (no auth needed)
+  createRequest: (requestData: any) => 
+    axios.post(`${API_BASE_URL}/public/access-requests`, requestData, {
+      headers: { 'Content-Type': 'application/json' }
+    }),
+  // Admin endpoints (authenticated)
+  getAllRequests: () => api.get('/admin/access-requests'),
+  approveRequest: (requestId: number) => api.post(`/admin/access-requests/${requestId}/approve`),
+  denyRequest: (requestId: number) => api.post(`/admin/access-requests/${requestId}/deny`),
+  deleteRequest: (requestId: number) => api.delete(`/admin/access-requests/${requestId}`),
+};
+
 export default api;
