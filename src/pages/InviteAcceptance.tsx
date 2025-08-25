@@ -40,6 +40,54 @@ const InviteAcceptance: React.FC = () => {
     }
   };
 
+  const validateField = (name: string, value: string) => {
+    const newErrors = { ...fieldErrors };
+    
+    switch (name) {
+      case 'firstName':
+        if (!value.trim()) {
+          newErrors.firstName = 'First name is required';
+        } else {
+          delete newErrors.firstName;
+        }
+        break;
+      case 'lastName':
+        if (!value.trim()) {
+          newErrors.lastName = 'Last name is required';
+        } else {
+          delete newErrors.lastName;
+        }
+        break;
+      case 'username':
+        if (!value.trim()) {
+          newErrors.username = 'Username is required';
+        } else if (value.length < 3) {
+          newErrors.username = 'Username must be at least 3 characters';
+        } else {
+          delete newErrors.username;
+        }
+        break;
+      case 'password':
+        if (!value) {
+          newErrors.password = 'Password is required';
+        } else if (value.length < 6) {
+          newErrors.password = 'Password must be at least 6 characters';
+        } else {
+          delete newErrors.password;
+        }
+        break;
+      default:
+        break;
+    }
+    
+    setFieldErrors(newErrors);
+  };
+
+  const handleInputChange = (name: string, value: string) => {
+    setFormData({ ...formData, [name]: value });
+    validateField(name, value);
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
@@ -186,12 +234,7 @@ const InviteAcceptance: React.FC = () => {
                     type="text"
                     required
                     value={formData.firstName}
-                    onChange={(e) => {
-                      setFormData({ ...formData, firstName: e.target.value });
-                      if (fieldErrors.firstName) {
-                        setFieldErrors({ ...fieldErrors, firstName: '' });
-                      }
-                    }}
+                    onChange={(e) => handleInputChange('firstName', e.target.value)}
                     className={`mt-1 appearance-none relative block w-full px-3 py-2 border ${fieldErrors.firstName ? 'border-red-300' : 'border-gray-300'} placeholder-gray-500 text-gray-900 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500 focus:z-10 sm:text-sm`}
                     placeholder="First name"
                   />
@@ -209,10 +252,13 @@ const InviteAcceptance: React.FC = () => {
                     type="text"
                     required
                     value={formData.lastName}
-                    onChange={(e) => setFormData({ ...formData, lastName: e.target.value })}
-                    className="mt-1 appearance-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500 focus:z-10 sm:text-sm"
+                    onChange={(e) => handleInputChange('lastName', e.target.value)}
+                    className={`mt-1 appearance-none relative block w-full px-3 py-2 border ${fieldErrors.lastName ? 'border-red-300' : 'border-gray-300'} placeholder-gray-500 text-gray-900 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500 focus:z-10 sm:text-sm`}
                     placeholder="Last name"
                   />
+                  {fieldErrors.lastName && (
+                    <p className="mt-1 text-sm text-red-600">{fieldErrors.lastName}</p>
+                  )}
                 </div>
               </div>
 
@@ -226,12 +272,7 @@ const InviteAcceptance: React.FC = () => {
                   type="text"
                   required
                   value={formData.username}
-                  onChange={(e) => {
-                    setFormData({ ...formData, username: e.target.value });
-                    if (fieldErrors.username) {
-                      setFieldErrors({ ...fieldErrors, username: '' });
-                    }
-                  }}
+                  onChange={(e) => handleInputChange('username', e.target.value)}
                   className={`mt-1 appearance-none relative block w-full px-3 py-2 border ${fieldErrors.username ? 'border-red-300' : 'border-gray-300'} placeholder-gray-500 text-gray-900 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500 focus:z-10 sm:text-sm`}
                   placeholder="Choose a username (3+ characters)"
                 />
@@ -250,12 +291,7 @@ const InviteAcceptance: React.FC = () => {
                   type="password"
                   required
                   value={formData.password}
-                  onChange={(e) => {
-                    setFormData({ ...formData, password: e.target.value });
-                    if (fieldErrors.password) {
-                      setFieldErrors({ ...fieldErrors, password: '' });
-                    }
-                  }}
+                  onChange={(e) => handleInputChange('password', e.target.value)}
                   className={`mt-1 appearance-none relative block w-full px-3 py-2 border ${fieldErrors.password ? 'border-red-300' : 'border-gray-300'} placeholder-gray-500 text-gray-900 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500 focus:z-10 sm:text-sm`}
                   placeholder="Choose a secure password (6+ characters)"
                 />
