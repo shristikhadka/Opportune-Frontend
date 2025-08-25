@@ -24,26 +24,35 @@ function App() {
     <AuthProvider>
       <Router>
         <div className="App">
-          <Header />
-          <main className="min-h-screen bg-gray-50">
-            <React.Suspense fallback={<div className="flex justify-center items-center h-64">Loading...</div>}>
-              <Routes>
-                <Route path="/" element={<Home />} />
-                <Route path="/login" element={<Login />} />
-                <Route path="/register" element={<Register />} />
-                <Route path="/jobs" element={<Jobs />} />
-                <Route path="/jobs/:id" element={<JobDetail />} />
-                                                  <Route path="/applications" element={<Applications />} />
-                <Route path="/applications/:applicationId" element={<ApplicationDetail />} />
-                <Route path="/files" element={<FileManagement />} />
-                <Route path="/profile" element={<UserProfile />} />
-                <Route path="/admin" element={<Admin />} />
-                <Route path="/hr-dashboard" element={<HRDashboard />} />
-                <Route path="/invite/:token" element={<InviteAcceptance />} />
-                <Route path="/request-access" element={<RequestAccess />} />
-              </Routes>
-            </React.Suspense>
-          </main>
+          <React.Suspense fallback={<div className="flex justify-center items-center h-64">Loading...</div>}>
+            <Routes>
+              {/* Standalone invite page without header */}
+              <Route path="/invite/:token" element={<InviteAcceptance />} />
+              
+              {/* All other routes with header */}
+              <Route path="*" element={
+                <>
+                  <Header />
+                  <main className="min-h-screen bg-gray-50">
+                    <Routes>
+                      <Route path="/" element={<Home />} />
+                      <Route path="/login" element={<Login />} />
+                      <Route path="/register" element={<Register />} />
+                      <Route path="/jobs" element={<Jobs />} />
+                      <Route path="/jobs/:id" element={<JobDetail />} />
+                      <Route path="/applications" element={<Applications />} />
+                      <Route path="/applications/:applicationId" element={<ApplicationDetail />} />
+                      <Route path="/files" element={<FileManagement />} />
+                      <Route path="/profile" element={<UserProfile />} />
+                      <Route path="/admin" element={<Admin />} />
+                      <Route path="/hr-dashboard" element={<HRDashboard />} />
+                      <Route path="/request-access" element={<RequestAccess />} />
+                    </Routes>
+                  </main>
+                </>
+              } />
+            </Routes>
+          </React.Suspense>
         </div>
       </Router>
     </AuthProvider>
