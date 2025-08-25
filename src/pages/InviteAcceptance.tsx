@@ -9,6 +9,7 @@ const InviteAcceptance: React.FC = () => {
   const [invite, setInvite] = useState<Invite | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [fieldErrors, setFieldErrors] = useState<{[key: string]: string}>({});
   const [submitting, setSubmitting] = useState(false);
   const [formData, setFormData] = useState<AcceptInviteRequest>({
     token: token || '',
@@ -44,6 +45,7 @@ const InviteAcceptance: React.FC = () => {
     try {
       setSubmitting(true);
       setError(null);
+      setFieldErrors({});
       
       await inviteAPI.acceptInvite(formData);
       
@@ -55,7 +57,16 @@ const InviteAcceptance: React.FC = () => {
       });
     } catch (err: any) {
       console.error('Error accepting invite:', err);
-      setError(err.response?.data?.message || 'Failed to create account. Please try again.');
+      
+      // Handle validation errors
+      if (err.response?.status === 400 && err.response?.data?.data) {
+        // Field-specific validation errors
+        setFieldErrors(err.response.data.data);
+        setError('Please fix the validation errors below.');
+      } else {
+        // General error
+        setError(err.response?.data?.message || 'Failed to create account. Please try again.');
+      }
     } finally {
       setSubmitting(false);
     }
@@ -175,10 +186,18 @@ const InviteAcceptance: React.FC = () => {
                     type="text"
                     required
                     value={formData.firstName}
-                    onChange={(e) => setFormData({ ...formData, firstName: e.target.value })}
-                    className="mt-1 appearance-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500 focus:z-10 sm:text-sm"
+                    onChange={(e) => {
+                      setFormData({ ...formData, firstName: e.target.value });
+                      if (fieldErrors.firstName) {
+                        setFieldErrors({ ...fieldErrors, firstName: '' });
+                      }
+                    }}
+                    className={`mt-1 appearance-none relative block w-full px-3 py-2 border ${fieldErrors.firstName ? 'border-red-300' : 'border-gray-300'} placeholder-gray-500 text-gray-900 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500 focus:z-10 sm:text-sm`}
                     placeholder="First name"
                   />
+                  {fieldErrors.firstName && (
+                    <p className="mt-1 text-sm text-red-600">{fieldErrors.firstName}</p>
+                  )}
                 </div>
                 <div>
                   <label htmlFor="lastName" className="block text-sm font-medium text-gray-700">
@@ -207,10 +226,18 @@ const InviteAcceptance: React.FC = () => {
                   type="text"
                   required
                   value={formData.username}
-                  onChange={(e) => setFormData({ ...formData, username: e.target.value })}
-                  className="mt-1 appearance-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500 focus:z-10 sm:text-sm"
-                  placeholder="Choose a username"
+                  onChange={(e) => {
+                    setFormData({ ...formData, username: e.target.value });
+                    if (fieldErrors.username) {
+                      setFieldErrors({ ...fieldErrors, username: '' });
+                    }
+                  }}
+                  className={`mt-1 appearance-none relative block w-full px-3 py-2 border ${fieldErrors.username ? 'border-red-300' : 'border-gray-300'} placeholder-gray-500 text-gray-900 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500 focus:z-10 sm:text-sm`}
+                  placeholder="Choose a username (3+ characters)"
                 />
+                {fieldErrors.username && (
+                  <p className="mt-1 text-sm text-red-600">{fieldErrors.username}</p>
+                )}
               </div>
 
               <div>
@@ -223,10 +250,18 @@ const InviteAcceptance: React.FC = () => {
                   type="password"
                   required
                   value={formData.password}
-                  onChange={(e) => setFormData({ ...formData, password: e.target.value })}
-                  className="mt-1 appearance-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500 focus:z-10 sm:text-sm"
-                  placeholder="Choose a secure password"
+                  onChange={(e) => {
+                    setFormData({ ...formData, password: e.target.value });
+                    if (fieldErrors.password) {
+                      setFieldErrors({ ...fieldErrors, password: '' });
+                    }
+                  }}
+                  className={`mt-1 appearance-none relative block w-full px-3 py-2 border ${fieldErrors.password ? 'border-red-300' : 'border-gray-300'} placeholder-gray-500 text-gray-900 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500 focus:z-10 sm:text-sm`}
+                  placeholder="Choose a secure password (6+ characters)"
                 />
+                {fieldErrors.password && (
+                  <p className="mt-1 text-sm text-red-600">{fieldErrors.password}</p>
+                )}
               </div>
 
               <div>
