@@ -81,8 +81,6 @@ export const jobsAPI = {
       }
     });
     
-    console.log('🔍 Frontend params:', searchParams);
-    console.log('🔍 Backend params:', backendParams);
     
     return api.post('/jobs/search', backendParams);
   },
@@ -158,7 +156,7 @@ export const fileUploadAPI = {
 // Access Request API endpoints
 export const accessRequestAPI = {
   // Public endpoint for creating requests (no auth needed)
-  createRequest: (requestData: any) => 
+  createRequest: (requestData: any) =>
     axios.post(`${API_BASE_URL}/public/access-requests`, requestData, {
       headers: { 'Content-Type': 'application/json' }
     }),
@@ -167,6 +165,20 @@ export const accessRequestAPI = {
   approveRequest: (requestId: number) => api.post(`/admin/access-requests/${requestId}/approve`),
   denyRequest: (requestId: number) => api.post(`/admin/access-requests/${requestId}/deny`),
   deleteRequest: (requestId: number) => api.delete(`/admin/access-requests/${requestId}`),
+};
+
+// AI Resume Analytics API endpoints
+export const resumeAnalyticsAPI = {
+  // Get parsed resume data for an application (HR only)
+  getParsedResume: (applicationId: number) => api.get(`/resume-analytics/application/${applicationId}`),
+  // Search candidates by skills (HR only)
+  searchBySkills: (skill: string) => api.get(`/resume-analytics/search/skills`, { params: { skill } }),
+  // Search candidates by experience range (HR only)
+  searchByExperience: (minExp: number, maxExp?: number) => api.get(`/resume-analytics/search/experience`, {
+    params: { minExp, ...(maxExp && { maxExp }) }
+  }),
+  // Get AI service status
+  getAIStatus: () => api.get('/resume-analytics/status'),
 };
 
 export default api;

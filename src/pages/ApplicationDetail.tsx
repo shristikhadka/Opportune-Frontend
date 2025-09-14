@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
 import { useAuth } from '../hooks/useAuth';
-import { applicationsAPI, fileUploadAPI } from '../services/api';
+import { applicationsAPI, fileUploadAPI, resumeAnalyticsAPI } from '../services/api';
 import { Application } from '../types';
 
 const ApplicationDetail: React.FC = () => {
@@ -13,12 +13,22 @@ const ApplicationDetail: React.FC = () => {
   const [error, setError] = useState<string | null>(null);
   const [updatingStatus, setUpdatingStatus] = useState(false);
   const [withdrawing, setWithdrawing] = useState(false);
+  const [parsedResume, setParsedResume] = useState<any>(null);
+  const [loadingParsedResume, setLoadingParsedResume] = useState(false);
+  const [aiStatus, setAiStatus] = useState<any>(null);
 
   useEffect(() => {
     if (applicationId) {
       fetchApplicationDetail();
     }
   }, [applicationId]);
+
+  useEffect(() => {
+    if (user?.role === 'HR' && applicationId) {
+      fetchAIStatus();
+      fetchParsedResume();
+    }
+  }, [user, applicationId]);
 
   const fetchApplicationDetail = async () => {
     try {
@@ -37,6 +47,30 @@ const ApplicationDetail: React.FC = () => {
       }
     } finally {
       setLoading(false);
+    }
+  };
+
+  const fetchAIStatus = async () => {
+    try {
+      const response = await resumeAnalyticsAPI.getAIStatus();
+      setAiStatus(response.data);
+    } catch (err) {
+      console.error('Error fetching AI status:', err);
+    }
+  };
+
+  const fetchParsedResume = async () => {
+    try {
+      setLoadingParsedResume(true);
+      const response = await resumeAnalyticsAPI.getParsedResume(parseInt(applicationId!));
+      setParsedResume(response.data);
+    } catch (err: any) {
+      console.error('Error fetching parsed resume:', err);
+      if (err.response?.status !== 404) {
+        console.warn('Parsed resume data not available for this application');
+      }
+    } finally {
+      setLoadingParsedResume(false);
     }
   };
 
@@ -307,7 +341,7 @@ const ApplicationDetail: React.FC = () => {
                   <p className="text-sm text-gray-600 font-medium">{formatDate(application.appliedAt)}</p>
                 </div>
               </div>
-              
+
               <div className="flex items-start space-x-4">
                 <div className="flex-shrink-0">
                   <div className={`w-12 h-12 ${getStatusIconColor(application.status)} rounded-xl flex items-center justify-center shadow-lg`}>
@@ -324,6 +358,147 @@ const ApplicationDetail: React.FC = () => {
               </div>
             </div>
           </div>
+
+          {/* AI Resume Analysis (HR Only) */}
+          {user?.role === 'HR' && (
+            <div className="bg-white rounded-2xl shadow-xl p-8 border border-gray-100">
+              <div className="flex items-center justify-between mb-6">
+                <h2 className="text-2xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">AI Resume Analysis</h2>
+                <div className="flex items-center space-x-2">
+                  <div className="w-3 h-3 bg-green-500 rounded-full animate-pulse"></div>
+                  <span className="text-sm text-gray-600 font-medium">
+                    {aiStatus?.service || 'AI Service'}
+                  </span>
+                </div>
+              </div>
+
+              {loadingParsedResume ? (
+                <div className="flex items-center justify-center py-12">
+                  <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mr-3"></div>
+                  <span className="text-gray-600">Analyzing resume...</span>
+                </div>
+              ) : parsedResume ? (
+                <div className="space-y-6">
+                  {/* Resume Quality Score */}
+                  {parsedResume.resumeQuality && (
+                    <div className="bg-gradient-to-r from-purple-50 to-pink-50 p-6 rounded-xl border border-purple-100">
+                      <h3 className="text-lg font-semibold text-purple-800 mb-3">Resume Quality Assessment</h3>
+                      <div className="flex items-center justify-between mb-4">
+                        <span className="text-sm font-medium text-gray-700">Overall Score</span>
+                        <span className="text-2xl font-bold text-purple-600">
+                          {parsedResume.resumeQuality.score}/{parsedResume.resumeQuality.maxScore}
+                        </span>
+                      </div>
+                      <div className="w-full bg-gray-200 rounded-full h-3 mb-3">
+                        <div
+                          className="bg-gradient-to-r from-purple-500 to-pink-500 h-3 rounded-full transition-all duration-500"
+                          style={{ width: `${parsedResume.resumeQuality.percentage}%` }}
+                        ></div>
+                      </div>
+                      <div className="flex justify-between items-center">
+                        <span className="text-sm text-purple-700 font-medium">{parsedResume.resumeQuality.percentage}%</span>
+                        <span className={`px-3 py-1 rounded-full text-xs font-bold ${
+                          parsedResume.resumeQuality.rating === 'Excellent' ? 'bg-green-100 text-green-800' :
+                          parsedResume.resumeQuality.rating === 'Good' ? 'bg-blue-100 text-blue-800' :
+                          parsedResume.resumeQuality.rating === 'Fair' ? 'bg-yellow-100 text-yellow-800' :
+                          'bg-red-100 text-red-800'
+                        }`}>
+                          {parsedResume.resumeQuality.rating}
+                        </span>
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Candidate Information */}
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    {parsedResume.candidateName && (
+                      <div className="bg-gradient-to-r from-blue-50 to-cyan-50 p-4 rounded-xl border border-blue-100">
+                        <p className="text-sm font-semibold text-blue-800 mb-1">Candidate Name</p>
+                        <p className="text-sm text-gray-900 font-medium">{parsedResume.candidateName}</p>
+                      </div>
+                    )}
+                    {parsedResume.email && (
+                      <div className="bg-gradient-to-r from-green-50 to-emerald-50 p-4 rounded-xl border border-green-100">
+                        <p className="text-sm font-semibold text-green-800 mb-1">Email</p>
+                        <p className="text-sm text-gray-900 font-medium">{parsedResume.email}</p>
+                      </div>
+                    )}
+                    {parsedResume.phone && (
+                      <div className="bg-gradient-to-r from-yellow-50 to-orange-50 p-4 rounded-xl border border-yellow-100">
+                        <p className="text-sm font-semibold text-yellow-800 mb-1">Phone</p>
+                        <p className="text-sm text-gray-900 font-medium">{parsedResume.phone}</p>
+                      </div>
+                    )}
+                    {parsedResume.yearsOfExperience !== null && parsedResume.yearsOfExperience !== undefined && (
+                      <div className="bg-gradient-to-r from-purple-50 to-pink-50 p-4 rounded-xl border border-purple-100">
+                        <p className="text-sm font-semibold text-purple-800 mb-1">Years of Experience</p>
+                        <p className="text-sm text-gray-900 font-medium">{parsedResume.yearsOfExperience} years</p>
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Skills */}
+                  {parsedResume.skills && parsedResume.skills.length > 0 && (
+                    <div className="bg-gradient-to-r from-indigo-50 to-blue-50 p-6 rounded-xl border border-indigo-100">
+                      <h3 className="text-lg font-semibold text-indigo-800 mb-3">Skills Identified</h3>
+                      <div className="flex flex-wrap gap-2">
+                        {parsedResume.skills.map((skill: string, index: number) => (
+                          <span
+                            key={index}
+                            className="px-3 py-1 bg-gradient-to-r from-indigo-600 to-blue-600 text-white rounded-full text-xs font-medium shadow-sm hover:shadow-md transition-shadow"
+                          >
+                            {skill}
+                          </span>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Experience Summary */}
+                  {parsedResume.experienceSummary && (
+                    <div className="bg-gradient-to-r from-gray-50 to-slate-50 p-6 rounded-xl border border-gray-100">
+                      <h3 className="text-lg font-semibold text-gray-800 mb-3">Experience Summary</h3>
+                      <p className="text-sm text-gray-700 leading-relaxed">{parsedResume.experienceSummary}</p>
+                    </div>
+                  )}
+
+                  {/* Education Summary */}
+                  {parsedResume.educationSummary && (
+                    <div className="bg-gradient-to-r from-teal-50 to-cyan-50 p-6 rounded-xl border border-teal-100">
+                      <h3 className="text-lg font-semibold text-teal-800 mb-3">Education Summary</h3>
+                      <p className="text-sm text-gray-700 leading-relaxed">{parsedResume.educationSummary}</p>
+                    </div>
+                  )}
+
+                  {/* AI Confidence & Parse Date */}
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    {parsedResume.confidenceScore && (
+                      <div className="bg-gradient-to-r from-orange-50 to-red-50 p-4 rounded-xl border border-orange-100">
+                        <p className="text-sm font-semibold text-orange-800 mb-1">AI Confidence Score</p>
+                        <p className="text-sm text-gray-900 font-medium">{Math.round(parsedResume.confidenceScore * 100)}%</p>
+                      </div>
+                    )}
+                    {parsedResume.parsedAt && (
+                      <div className="bg-gradient-to-r from-gray-50 to-slate-50 p-4 rounded-xl border border-gray-100">
+                        <p className="text-sm font-semibold text-gray-800 mb-1">Parsed On</p>
+                        <p className="text-sm text-gray-900 font-medium">{formatDate(parsedResume.parsedAt)}</p>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              ) : (
+                <div className="text-center py-12">
+                  <div className="w-16 h-16 bg-gradient-to-r from-gray-100 to-gray-200 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <svg className="w-8 h-8 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                    </svg>
+                  </div>
+                  <p className="text-gray-600 font-medium">No AI analysis available for this resume</p>
+                  <p className="text-sm text-gray-500 mt-2">The resume may not have been processed yet or AI parsing is not enabled</p>
+                </div>
+              )}
+            </div>
+          )}
         </div>
 
         {/* Sidebar */}

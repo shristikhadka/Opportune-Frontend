@@ -18,6 +18,7 @@ const FileManagement = React.lazy(() => import('./pages/FileManagement'));
 const UserProfile = React.lazy(() => import('./pages/UserProfile'));
 const InviteAcceptance = React.lazy(() => import('./pages/InviteAcceptance'));
 const RequestAccess = React.lazy(() => import('./pages/RequestAccess'));
+const CandidateSearch = React.lazy(() => import('./pages/CandidateSearch'));
 
 function App() {
   return (
@@ -46,6 +47,7 @@ function App() {
                       <Route path="/profile" element={<UserProfile />} />
                       <Route path="/admin" element={<Admin />} />
                       <Route path="/hr-dashboard" element={<HRDashboard />} />
+                      <Route path="/candidate-search" element={<CandidateSearch />} />
                       <Route path="/request-access" element={<RequestAccess />} />
                     </Routes>
                   </main>
