@@ -2,6 +2,10 @@
 
 A modern React-based frontend for the Opportune job application management system with AI-powered resume analytics.
 
+## 🌐 Live Demo
+
+**[View Live Application](https://job-app-frontend-shristi.netlify.app)**
+
 ## 🚀 Features
 
 - **Modern UI/UX**: Clean, responsive design with Tailwind CSS
