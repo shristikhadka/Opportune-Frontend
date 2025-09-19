@@ -21,7 +21,7 @@
 ## 📸 Platform Overview
 
 <p align="center">
-  <img src="https://i.imgur.com/eBF0JzJ.png" width="400" />
+  <img src="https://i.imgur.com/eBF0JzJ.png" width="600" />
 </p>
 
 **Modern landing page with clean design and clear value proposition**
@@ -29,7 +29,7 @@
 ## 🤖 AI-Powered Resume Analytics
 
 <p align="center">
-  <img src="https://i.imgur.com/6VznnVp.png" width="400" />
+  <img src="https://i.imgur.com/6VznnVp.png" width="600" />
 </p>
 
 **Google Cloud Document AI extracts skills, experience, and contact info with machine-learning based confidence scoring**
@@ -39,7 +39,7 @@
 ### Job Seeker Dashboard
 
 <p align="center">
-  <img src="https://i.imgur.com/3udRTBm.png" width="400" />
+  <img src="https://i.imgur.com/3udRTBm.png" width="600" />
 </p>
 
 **Comprehensive application tracking with status updates and job management**
@@ -47,7 +47,7 @@
 ### HR Management Interface
 
 <p align="center">
-  <img src="https://i.imgur.com/rPfpVnq.png" width="400" />
+  <img src="https://i.imgur.com/rPfpVnq.png" width="600" />
 </p>
 
 **Professional HR dashboard for application management and candidate review**
@@ -55,7 +55,7 @@
 ### Admin Analytics Dashboard
 
 <p align="center">
-  <img src="https://i.imgur.com/KKEKX3r.png" width="400" />
+  <img src="https://i.imgur.com/KKEKX3r.png" width="600" />
 </p>
 
 **Comprehensive analytics showing platform usage, user roles, and system metrics**
