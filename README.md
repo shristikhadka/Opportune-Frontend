@@ -55,7 +55,7 @@
 ### Admin Analytics Dashboard
 
 <p align="center">
-  <img src="https://i.imgur.com/3Uz3RqY.png" width="400" />
+  <img src="https://i.imgur.com/KKEKX3r.png" width="400" />
 </p>
 
 **Comprehensive analytics showing platform usage, user roles, and system metrics**
