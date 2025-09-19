@@ -1,30 +1,72 @@
-# Opportune - Frontend
+# Opportune – AI-Powered Job Application Platform
 
-A modern React-based frontend for the Opportune job application management system with AI-powered resume analytics.
+**Full-stack job platform with AI resume parsing, multi-role dashboards, and real-time analytics.** Built with React + Spring Boot, deployed with Google Cloud Document AI integration.
 
 ## 🌐 Live Demo
 
-**[View Live Application](https://job-app-frontend-shristi.netlify.app)**
+**[🚀 Try the Live Application](https://job-app-frontend-shristi.netlify.app)**
 
-## 🚀 Features
+**Demo Accounts Available:**
+- **Admin**: `admin_test` / `test123` (Full system access)
+- **HR Manager**: `hr_test` / `test123` (Post jobs, manage applications)  
+- **Job Seeker**: `newuser` / `password1234` (Apply to jobs, track applications)
 
-- **Modern UI/UX**: Clean, responsive design with Tailwind CSS
-- **Job Search & Filtering**: Advanced search with multiple filters
-- **Resume Management**: Upload, delete, and manage resumes
-- **AI Resume Analytics**: View AI-parsed resume insights and candidate metrics
-- **Real-time Updates**: Dynamic updates for job applications and status changes
-- **Role-based Access**: Different interfaces for candidates, HR, and admins
-- **Mobile Responsive**: Fully optimized for desktop and mobile devices
+## 🚀 Key Differentiators
+
+- **🤖 AI-Powered Resume Parsing** - Google Cloud Document AI extracts skills, experience, and contact info with machine-learning based confidence scoring
+- **👥 Multi-Role System** - Seamless Admin/HR/Job Seeker dashboards with role-based access control
+- **📊 Real-Time Analytics** - Live application tracking, candidate scoring, and platform insights
+- **🔧 Full-Stack Deployment** - React frontend + Spring Boot backend, with JWT authentication
+
+## 📸 Platform Overview
+
+<p align="center">
+  <img src="https://i.imgur.com/eBF0JzJ.png" width="400" />
+</p>
+
+**Modern landing page with clean design and clear value proposition**
+
+## 🤖 AI-Powered Resume Analytics
+
+<p align="center">
+  <img src="https://i.imgur.com/6VznnVp.png" width="400" />
+</p>
+
+**Google Cloud Document AI extracts skills, experience, and contact info with machine-learning based confidence scoring**
+
+## 💼 Platform Showcase
+
+### Job Seeker Dashboard
+
+<p align="center">
+  <img src="https://i.imgur.com/3udRTBm.png" width="400" />
+</p>
+
+**Comprehensive application tracking with status updates and job management**
+
+### HR Management Interface
+
+<p align="center">
+  <img src="https://i.imgur.com/rPfpVnq.png" width="400" />
+</p>
+
+**Professional HR dashboard for application management and candidate review**
+
+### Admin Analytics Dashboard
+
+<p align="center">
+  <img src="https://i.imgur.com/3Uz3RqY.png" width="400" />
+</p>
+
+**Comprehensive analytics showing platform usage, user roles, and system metrics**
 
 ## 🛠️ Tech Stack
 
-- **Frontend**: React 18, TypeScript
-- **Styling**: Tailwind CSS
-- **State Management**: React hooks and context
-- **HTTP Client**: Axios
-- **Routing**: React Router
-- **Build Tool**: Create React App
-- **Icons**: Heroicons
+- **Frontend**: React 18, TypeScript, Tailwind CSS  
+- **Backend**: Spring Boot, JWT Authentication  
+- **AI Integration**: Google Cloud Document AI  
+- **Database**: PostgreSQL with RESTful APIs  
+- **Deployment**: Netlify (Frontend) + Render (Backend)
 
 ## 📋 Prerequisites
 
@@ -46,164 +88,50 @@ REACT_APP_API_URL=https://your-backend-api.onrender.com/api
 
 ## 🚀 Quick Start
 
-### Local Development
+```bash
+# Clone and setup
+git clone https://github.com/shristikhadka/Opportune-Frontend.git
+cd Opportune-Frontend
+npm install
 
-1. **Clone the repository**
-   ```bash
-   git clone https://github.com/shristikhadka/Opportune-Frontend.git
-   cd Opportune-Frontend
-   ```
+# Configure environment
+cp .env.example .env
+# Add your backend API URL
 
-2. **Install dependencies**
-   ```bash
-   npm install
-   ```
-
-3. **Configure environment**
-   ```bash
-   cp .env.example .env
-   # Edit .env with your backend API URL
-   ```
-
-4. **Start development server**
-   ```bash
-   npm start
-   ```
-
-5. **Access the application**
-   - Frontend: `http://localhost:3000`
+# Start development server
+npm start
+# Access at http://localhost:3000
+```
 
 ### Production Build
-
 ```bash
-# Build for production
 npm run build
-
-# Serve production build locally
 npm install -g serve
 serve -s build
 ```
 
 ### Deployment (Netlify)
+1. Connect your GitHub repository
+2. Set build command: `npm run build`
+3. Set publish directory: `build`
+4. Set environment variable: `REACT_APP_API_URL`
 
-1. **Connect to Netlify**
-   - Connect your GitHub repository
-   - Set build command: `npm run build`
-   - Set publish directory: `build`
+## 🎯 Key Achievements
 
-2. **Environment Variables**
-   - Set `REACT_APP_API_URL` to your backend API URL
+- **AI Integration**: Successfully integrated Google Cloud Document AI for resume parsing
+- **Multi-Role System**: Implemented role-based access control for three user types
+- **Modern UI/UX**: Created responsive, professional interface with Tailwind CSS
+- **Full-Stack**: Built complete job application platform with frontend and backend
+- **Production Ready**: Deployed live application with demo accounts for testing
 
-## 📱 Pages & Features
-
-### Public Pages
-- **Home**: Landing page with job search
-- **Login/Register**: User authentication
-- **Job Listings**: Browse and search jobs
-- **Job Details**: View job information and apply
-
-### Candidate Dashboard
-- **Profile Management**: Update personal information
-- **My Applications**: Track application status
-- **Resume Management**: Upload and manage resumes
-- **Job Search**: Advanced filtering and search
-
-### HR Dashboard
-- **Job Management**: Create, edit, and manage job postings
-- **Application Review**: View and manage applications
-- **Candidate Analytics**: AI-powered candidate insights
-- **Resume Analysis**: View parsed resume data and metrics
-
-### Admin Panel
-- **User Management**: Manage all users and permissions
-- **Access Requests**: Approve HR access requests
-- **System Analytics**: Overview of platform usage
-
-## 🎨 Key Components
-
-### Core Components
-- **JobCard**: Display job information in lists
-- **FileUpload**: Drag-and-drop file upload with progress
-- **SearchFilters**: Advanced job search filtering
-- **ApplicationModal**: Job application submission
-- **ConfirmDialog**: Reusable confirmation dialogs
-
-### AI Features
-- **ResumeAnalytics**: Display AI-parsed resume data
-- **CandidateSearch**: AI-powered candidate filtering
-- **SkillsAnalysis**: Extract and display candidate skills
-- **ExperienceMapping**: Match candidate experience to job requirements
-
-## 🧪 Testing
-
-```bash
-# Run tests
-npm test
-
-# Run tests with coverage
-npm test -- --coverage
-
-# Run tests in watch mode
-npm test -- --watch
-```
-
-## 📊 Project Structure
-
-```
-src/
-├── components/          # Reusable UI components
-├── pages/              # Main application pages
-├── services/           # API service functions
-├── types/              # TypeScript type definitions
-├── utils/              # Utility functions
-├── App.tsx             # Main application component
-└── index.tsx           # Application entry point
-```
-
-## 🔧 Development
-
-### Code Style
-- ESLint configuration for code quality
-- Prettier for code formatting
-- TypeScript for type safety
-
-### API Integration
-- Centralized API configuration in `services/api.ts`
-- Axios interceptors for authentication
-- Error handling with user-friendly messages
-
-## 📝 Available Scripts
-
-- `npm start` - Run development server
-- `npm build` - Build for production
-- `npm test` - Run test suite
-- `npm eject` - Eject from Create React App (irreversible)
-
-## 🔒 Security Features
-
-- JWT token management
-- Protected routes based on user roles
-- Input validation and sanitization
-- Secure file upload handling
-- CORS-enabled API communication
-
-## 📱 Browser Support
-
-- Chrome (latest)
-- Firefox (latest)
-- Safari (latest)
-- Edge (latest)
-
-## 🌐 Related Repositories
+## 🔗 Related Repositories
 
 - **Backend API**: [Opportune-Backend](https://github.com/shristikhadka/Opportune-Backend)
-
-## 📝 License
-
-This project is licensed under the MIT License.
+- **Full-Stack Demo**: [Live Application](https://job-app-frontend-shristi.netlify.app)
 
 ## 👨‍💻 Author
 
-**Shristi Khadka**
-- GitHub: [@shristikhadka](https://github.com/shristikhadka)
-- Email: shristikhadka0988@gmail.com
+**Shristi Khadka** - Full-Stack Developer
+- 💼 **GitHub**: [@shristikhadka](https://github.com/shristikhadka)
+- 📧 **Email**: shristikhadka0988@gmail.com
+- 🔗 **LinkedIn**: [Connect with me](https://www.linkedin.com/in/shristi-k-34b53922a/)
